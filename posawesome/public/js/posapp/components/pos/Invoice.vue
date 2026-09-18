@@ -780,7 +780,7 @@
       </div>
     </div>
     <div class="cart-actions">
-      <button class="btn-secondary" @click="get_draft_invoices">
+      <button class="btn-secondary" @click="get_draft_invoices()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21V8l-6-5H5a2 2 0 0 0-2 2v16Z" /><path d="M13 3v5h5" /></svg>
         {{ __("الفواتير المعلقة") }}
         <span class="btn-badge" v-if="draft_invoices_count > 0">{{ draft_invoices_count }}</span>
@@ -815,7 +815,7 @@
       {{ __("دفع") }} ·
       <span class="pay-amount">{{ currencySymbol(pos_profile.currency) }} {{ formtCurrency(subtotal) }}</span>
     </button>
-    <button class="holds-tab" @click="get_draft_invoices" :title="__('الفواتير المعلقة')">
+    <button class="holds-tab" @click="get_draft_invoices()" :title="__('الفواتير المعلقة')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4M16 2v4M3 10h18M5 6h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" /></svg>
       <span class="holds-count" v-if="draft_invoices_count > 0">{{ draft_invoices_count }}</span>
     </button>
