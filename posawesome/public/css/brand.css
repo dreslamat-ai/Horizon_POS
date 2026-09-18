@@ -1,0 +1,695 @@
+/* هوية Horizon البصرية لكاشير سترة — مطابقة لبروتوتايب
+   docs/prototypes/sutra-pos-cashier.html في مستودع horizonerpapp.
+   كل القواعد مقصورة على #page-posapp عمدًا — posapp.vue هي المكوّن
+   الوحيد المُركَّب هنا، فمفيش أي تأثير على باقي صفحات Frappe Desk. */
+
+/* متغيرات الوضع الفاتح (افتراضي) — نفس قيم البروتوتايب حرفيًا. */
+#page-posapp {
+    --h-navy: #1D2D44;
+    --h-navy-light: #2B4066;
+    --h-surface: #FFFFFF;
+    --h-ink: #1A1E27;
+    --h-ink-soft: #6B7280;
+    --h-cream: #F7F3EA;
+    --h-line: #E7E2D6;
+    --h-gold: #C8A560;
+    --h-gold-light: #E4D2A8;
+}
+/* الوضع الداكن — يُفعَّل بـ[data-theme="dark"] على #page-posapp (زرار
+   التبديل في Navbar.vue). نفس قيم البروتوتايب (أسطر ٢٢-٣٢) بالضبط. */
+#page-posapp[data-theme="dark"] {
+    --h-navy: #2B4066;
+    --h-navy-light: #3A5480;
+    --h-surface: #182231;
+    --h-ink: #F1EDE3;
+    --h-ink-soft: #9AA5B5;
+    --h-cream: #101825;
+    --h-line: #2A374A;
+}
+
+#page-posapp {
+    background: var(--h-cream);
+    transition: background .2s ease;
+}
+
+#page-posapp .v-toolbar {
+    background-color: var(--h-navy) !important;
+    color: var(--h-surface) !important;
+}
+
+#page-posapp .v-toolbar .v-btn,
+#page-posapp .v-toolbar .v-icon {
+    color: var(--h-surface) !important;
+}
+
+/* بادج الوردية المفتوحة في الهيدر — اسم الكاشير الحالي فعليًا
+   (frappe.session.user_fullname)، لا نص ثابت. */
+#page-posapp .shift-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--h-surface);
+    white-space: nowrap;
+}
+#page-posapp .shift-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2E9E6D;
+    flex: none;
+}
+
+/* زرار "حفظ/جديد" (color="accent") بيطلع فاتح جدًا من Vuetify رغم
+   قيمة الثيم الصحيحة var(--h-gold) — تثبيت مباشر للون ولنص كحلي غامق
+   بدل الأبيض عشان يبان واضح فوق الذهبي المتوسط. */
+#page-posapp .v-btn.bg-accent {
+    background-color: var(--h-gold) !important;
+    color: var(--h-navy) !important;
+}
+
+/* شبكة الأصناف — تطبيق حرفي لقسم .item-card من البروتوتايب
+   (docs/prototypes/sutra-pos-cashier.html أسطر ١٤٦-١٨٣)، فوق بنية
+   ItemsSelector.vue الجديدة (div.grid بدل v-row/v-col). القيم
+   منسوخة بالضبط: نصف قطر ١٦px، ظل الكارت، تحويل عند hover. */
+#page-posapp .grid-scroll {
+    overflow-y: auto;
+    padding-bottom: 20px;
+}
+#page-posapp .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+    gap: 14px;
+}
+#page-posapp .item-card {
+    background: var(--h-surface);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(29, 45, 68, .10);
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform .16s cubic-bezier(.2, .8, .2, 1), box-shadow .16s ease, border-color .16s ease;
+    position: relative;
+}
+#page-posapp .item-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(29, 45, 68, .12), 0 2px 8px rgba(29, 45, 68, .08);
+    border-color: var(--h-gold-light);
+}
+#page-posapp .item-card:active {
+    transform: translateY(-1px) scale(.98);
+}
+#page-posapp .item-thumb {
+    height: 108px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--h-cream);
+}
+#page-posapp .item-badge {
+    position: absolute;
+    top: 8px;
+    inset-inline-start: 8px;
+    background: rgba(255, 255, 255, .92);
+    color: var(--h-navy);
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+}
+#page-posapp .item-info {
+    padding: 10px 12px 12px;
+}
+#page-posapp .item-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--h-ink);
+    line-height: 1.35;
+    margin-bottom: 6px;
+    min-height: 35px;
+}
+#page-posapp .item-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+#page-posapp .item-price {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: var(--h-navy);
+}
+#page-posapp .item-price small {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--h-ink-soft);
+}
+#page-posapp .item-stock {
+    font-size: 10.5px;
+    color: var(--h-ink-soft);
+}
+
+/* أسفل السلة — تطبيق حرفي لـ.cart-summary/.cart-actions/.btn-pay من
+   البروتوتايب (أسطر ٢٣٨-٢٦١)، فوق نفس ٦ الأزرار والحقول الوظيفية
+   الحقيقية في Invoice.vue (الفواتير المعلقة/مرتجع/إلغاء/حفظ-جديد/
+   طباعة مسودة/دفع) — لا حذف ولا تبسيط، restyle فقط. */
+#page-posapp .cart-summary {
+    border-top: 1px solid var(--h-line);
+    padding: 14px 18px;
+}
+#page-posapp .sum-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--h-ink-soft);
+    padding: 4px 0;
+}
+#page-posapp .sum-row.total {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--h-ink);
+    padding-top: 10px;
+    margin-top: 4px;
+    border-top: 1px dashed var(--h-line);
+}
+#page-posapp .sum-row.total span:last-child {
+    color: var(--h-navy);
+}
+#page-posapp .sum-input {
+    width: 110px;
+    text-align: end;
+    border: 1.5px solid var(--h-line);
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: var(--h-ink);
+    background: var(--h-surface);
+}
+#page-posapp .sum-input:disabled {
+    background: var(--h-cream);
+    color: #9AA5B5;
+}
+#page-posapp .cart-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 18px 14px;
+}
+#page-posapp .btn-secondary {
+    position: relative;
+    height: 46px;
+    border-radius: 10px;
+    border: 1.5px solid var(--h-line);
+    background: var(--h-surface);
+    color: var(--h-ink);
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: border-color .15s ease, background .15s ease;
+    font-family: inherit;
+}
+#page-posapp .btn-secondary:hover {
+    border-color: var(--h-navy);
+    background: var(--h-cream);
+}
+#page-posapp .btn-secondary.disable-events {
+    opacity: .45;
+    pointer-events: none;
+}
+#page-posapp .btn-badge {
+    position: absolute;
+    top: -6px;
+    inset-inline-end: -6px;
+    background: #D14D4D;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+}
+#page-posapp .btn-pay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 0 18px 18px;
+    height: 58px;
+    width: calc(100% - 36px);
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, var(--h-gold), #B08D45);
+    color: #121D2E;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(200, 165, 96, .35);
+    transition: transform .12s ease, box-shadow .12s ease;
+    font-family: inherit;
+}
+#page-posapp .btn-pay:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(200, 165, 96, .45);
+}
+#page-posapp .btn-pay .pay-amount {
+    font-variant-numeric: tabular-nums;
+}
+
+/* رأس السلة — تزيين حول Customer.vue (v-autocomplete) الموجودة بدل
+   استبدالها، عشان منطق البحث/الفلترة الحقيقي (customFilter) يفضل
+   شغال زي ما هو. نفس روح .customer-row من البروتوتايب: خلفية
+   كريمية مستديرة بدل outline Vuetify الافتراضي. */
+#page-posapp .cart-header {
+    border-bottom: 1px solid var(--h-line);
+    padding-bottom: 12px;
+    margin-bottom: 4px;
+}
+#page-posapp .cart-header .v-field {
+    background: var(--h-cream) !important;
+    border-radius: 10px !important;
+}
+#page-posapp .cart-header .v-field__outline {
+    display: none;
+}
+#page-posapp .cart-header .v-field__prepend-inner .v-icon,
+#page-posapp .cart-header .v-input__append .v-icon {
+    color: var(--h-navy) !important;
+}
+
+/* أسطر الفاتورة — تنسيق بصري (restyle) لجدول Vuetify الحقيقي
+   (v-data-table) بروح .cart-line من البروتوتايب: فاصل بسيط، خط
+   القيمة بارز، بلا لمس لأي @click أو خاصية تعديل كمية/سعر. البنية
+   الوظيفية (v-data-table، expanded state) لم تُمس عمدًا — القرار
+   موثّق في المهمة #44: استبدالها مخاطرة على فاتورة عميل حقيقي. */
+#page-posapp .v-data-table {
+    background: transparent !important;
+}
+#page-posapp .v-data-table__tr {
+    border-bottom: 1px solid var(--h-line) !important;
+}
+#page-posapp .v-data-table__tr:hover {
+    background: var(--h-cream) !important;
+}
+#page-posapp .v-data-table__th {
+    background: var(--h-cream) !important;
+    color: var(--h-ink-soft) !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+}
+#page-posapp .v-data-table-column--align-center {
+    text-align: center;
+}
+#page-posapp .cart-line-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+#page-posapp .cart-thumb {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: var(--h-cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    overflow: hidden;
+}
+#page-posapp .cart-line-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--h-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* عمود "هل هذا عرض؟" — إخفاء بصري فقط (العمود لسه موجود في
+   items_headers وبياناته سليمة، الكاشير مش محتاج يشوفه في كل الأحوال
+   ومطابقة البروتوتايب بتفضّل صف أخف). */
+#page-posapp .v-data-table__th:last-child,
+#page-posapp .v-data-table__td:last-child {
+    display: none;
+}
+
+/* عكس ترتيب السلة/الشبكة — البروتوتايب المعتمد السلة يسار والشبكة
+   يمين، عكس الافتراضي في posawesome. عكس بصري فقط (order في flexbox)،
+   صفر تغيير في DOM أو أي @click. */
+#page-posapp .pos-main-row {
+    flex-direction: row-reverse;
+}
+
+/* رسالة السلة الفاضية — بدل "No data available" الافتراضية. */
+#page-posapp .cart-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 20px;
+    color: var(--h-ink-soft);
+    gap: 10px;
+    text-align: center;
+}
+#page-posapp .cart-empty p {
+    font-size: 13px;
+    margin: 0;
+    max-width: 220px;
+}
+
+/* تابات مجموعات الأصناف — تفعيل حرفي لروح .chip من البروتوتايب فوق
+   منطق search_onchange/item_group الموجود بالفعل (كان مربوطًا
+   بكارت كبيرة معطّلة الشكل تحت الشبكة، مش تابات فوقها). */
+#page-posapp .chips-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 2px 10px;
+}
+#page-posapp .chip {
+    flex: none;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1.5px solid var(--h-line);
+    background: var(--h-surface);
+    color: var(--h-ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s ease;
+    font-family: inherit;
+}
+#page-posapp .chip.active {
+    background: var(--h-navy);
+    border-color: var(--h-navy);
+    color: var(--h-surface);
+}
+#page-posapp .chip:hover:not(.active) {
+    border-color: var(--h-gold);
+    color: var(--h-ink);
+}
+
+/* رابط كود الكوبون في السلة — يفتح نفس PosCoupons dialog الموجود
+   والمربوط فعليًا (evntBus show_coupons)، مجرد واجهة وصول أوضح
+   بدل الاعتماد على F7 فقط. */
+#page-posapp .coupon-link {
+    background: none;
+    border: none;
+    color: var(--h-navy);
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 2px 0;
+    font-family: inherit;
+    text-decoration: underline dotted;
+}
+#page-posapp .coupon-link:hover {
+    color: var(--h-gold);
+}
+
+/* هوية الهيدر الكاملة — اسم POS Profile الحقيقي + الشركة الحقيقية،
+   بروح .brand من البروتوتايب. */
+#page-posapp .brand-logo {
+    border-radius: 8px;
+}
+#page-posapp .brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+#page-posapp .brand-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--h-surface);
+}
+#page-posapp .brand-name-sub {
+    font-weight: 400;
+    opacity: .7;
+    font-size: 13px;
+}
+#page-posapp .brand-sub {
+    font-size: 10.5px;
+    color: rgba(255, 255, 255, .65);
+}
+#page-posapp .topbar-divider {
+    border-color: rgba(255, 255, 255, .25) !important;
+    height: 28px !important;
+}
+/* صف "عميل نقدي" الكبير — غطاء بصري (overlay) فوق v-autocomplete
+   الحقيقي، لا استبدال بـv-show. الحقل تحته لازم يفضل display:block
+   طول الوقت من أول mount — إخفاؤه بـv-show كان بيمنع Vuetify's
+   virtual-scroll من حساب أبعاده صح، فقائمة نتائج البحث بتطلع فاضية
+   تمامًا حتى مع بيانات صحيحة من السيرفر (عطل حقيقي اتكشف واتصلح). */
+#page-posapp .customer-search-wrap {
+    position: relative;
+    height: 48px;
+    overflow: hidden;
+    border-radius: 10px;
+}
+#page-posapp .customer-search-wrap .v-input {
+    height: 48px;
+}
+#page-posapp .customer-row {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--h-cream);
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background .15s ease;
+}
+#page-posapp .customer-row:hover {
+    background: var(--h-gold-light);
+}
+#page-posapp .customer-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--h-navy);
+    color: var(--h-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex: none;
+}
+#page-posapp .customer-text {
+    flex: 1;
+}
+#page-posapp .customer-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--h-ink);
+}
+#page-posapp .customer-hint {
+    font-size: 11px;
+    color: var(--h-ink-soft);
+}
+
+/* توگل نسبة/قيمة للخصم — بند ٤ من البروتوتايب. بيبدأ من إعداد
+   posa_use_percentage_discount لكن الكاشير يقدر يبدّله فاتورة بفاتورة
+   (switch_discount_mode في Invoice.vue تصفّر القيمة القديمة أوتوماتيكيًا). */
+#page-posapp .mode-toggle {
+    display: inline-flex;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--h-line);
+    margin-inline-start: 6px;
+    vertical-align: middle;
+}
+#page-posapp .mode-toggle button {
+    border: none;
+    background: var(--h-surface);
+    color: var(--h-ink-soft);
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-family: inherit;
+}
+#page-posapp .mode-toggle button.active {
+    background: var(--h-navy);
+    color: #fff;
+}
+
+/* حقل كود الكوبون المباشر — بند ١٠، مطابق حرفيًا لـ.coupon-row في
+   البروتوتايب. مربوط بنفس add_coupon الحقيقية في PosCoupons.vue عبر
+   حدث add_coupon_direct، بلا فتح صفحة الكوبونات الكاملة. */
+#page-posapp .coupon-row {
+    display: flex;
+    gap: 6px;
+    margin: 6px 18px 0;
+}
+#page-posapp .coupon-input {
+    flex: 1;
+    height: 32px;
+    border: 1px solid var(--h-line);
+    border-radius: 8px;
+    padding: 0 10px;
+    font-size: 12px;
+    background: var(--h-surface);
+    color: var(--h-ink);
+}
+#page-posapp .coupon-apply-btn {
+    border: none;
+    background: var(--h-cream);
+    color: var(--h-navy);
+    font-weight: 800;
+    font-size: 11.5px;
+    border-radius: 8px;
+    padding: 0 12px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* تاب الفواتير المعلقة الأحمر — بند ٥. left فيزيائية صريحة بالضبط
+   زي البروتوتايب (تعليقه الأصلي: transform بيتحرك على محور X
+   الفيزيائي بصرف النظر عن RTL، فلازم يتطابقوا يدويًا). بيفتح نفس
+   Drafts.vue الحقيقي عبر get_draft_invoices الموجودة، مش تكرار. */
+#page-posapp .holds-tab {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #D14D4D;
+    color: #fff;
+    border: none;
+    border-radius: 0 10px 10px 0;
+    padding: 10px 7px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, .2);
+    z-index: 40;
+    font-weight: 800;
+}
+#page-posapp .holds-tab .holds-count {
+    font-size: 12px;
+}
+
+/* تاب الاختصارات المرجعي — بند ١١. بيفتح v-dialog Vuetify عادي بدل
+   drawer منزلق يدوي (تجنّب أي transform أفقي معتمد على RTL — نفس
+   الدرس المسجَّل في ذاكرة horizonerpapp-rtl-css-flip). */
+#page-posapp .shortcuts-tab {
+    position: fixed;
+    right: 0;
+    top: calc(50% + 70px);
+    transform: translateY(-50%);
+    background: var(--h-navy-light);
+    color: #fff;
+    border: none;
+    border-radius: 10px 0 0 10px;
+    padding: 10px 7px;
+    cursor: pointer;
+    box-shadow: -2px 2px 12px rgba(0, 0, 0, .2);
+    z-index: 40;
+}
+
+/* حوار صلاحية المدير — بند ٦. التحقق الفعلي من السيرفر
+   (verify_manager_pin)، هذا مجرد شكل الحوار. */
+#page-posapp .pin-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--h-ink);
+    margin-bottom: 4px;
+}
+#page-posapp .pin-hint {
+    font-size: 12.5px;
+    color: var(--h-ink-soft);
+    margin-bottom: 14px;
+}
+#page-posapp .pin-error {
+    color: #D14D4D;
+    font-size: 12px;
+    min-height: 16px;
+    margin-top: 8px;
+    margin-bottom: 0;
+}
+
+/* تنبيه الحزمة — بند ٩. مركزي بصرف النظر عن الاتجاه (توسيط
+   translateX(-50%) على inset-inline-start:50% آمن دائمًا، عكس درج
+   جانبي)، مطابق حرفيًا لقيم البروتوتايب. */
+#page-posapp .bundle-toast {
+    position: fixed;
+    bottom: 20px;
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    background: var(--h-navy);
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(29, 45, 68, .25);
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 13.5px;
+}
+#page-posapp .bundle-toast b {
+    color: var(--h-gold-light);
+}
+/* ستيبر الكمية المباشر في السلة — بند ناقص لاحظه المالك: +/- كانت
+   موجودة بس جوه expanded-item (تحتاج فتح السهم)، مش ظاهرة في الصف
+   الرئيسي زي stepper البروتوتايب. نفس add_one/subtract_one الحقيقية
+   الموجودة أصلًا، إضافة واجهة فقط. */
+#page-posapp .qty-stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    border: 1.5px solid var(--h-line);
+    border-radius: 999px;
+    overflow: hidden;
+}
+#page-posapp .qty-stepper button {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: var(--h-cream);
+    color: var(--h-navy);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-family: inherit;
+}
+#page-posapp .qty-stepper button:hover {
+    background: var(--h-gold-light);
+}
+#page-posapp .qty-stepper span {
+    width: 26px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--h-ink);
+}
+
+#page-posapp .bundle-toast button {
+    background: var(--h-gold);
+    color: #121D2E;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+    font-family: inherit;
+}
