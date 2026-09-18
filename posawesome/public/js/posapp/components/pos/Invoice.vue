@@ -328,12 +328,21 @@
                       "
                       :rules="[isNumber]"
                       id="rate"
+                      :append-icon="
+                        !!pos_profile.posa_require_manager_approval &&
+                        !rate_unlocked
+                          ? 'mdi-lock'
+                          : ''
+                      "
+                      @click:append="unlock_rate_edit()"
                       :disabled="
                         !!item.posa_is_offer ||
                         !!item.posa_is_replace ||
                         !!item.posa_offer_applied ||
                         !pos_profile.posa_allow_user_to_edit_rate ||
-                        !!invoice_doc.is_return
+                        !!invoice_doc.is_return ||
+                        (!!pos_profile.posa_require_manager_approval &&
+                          !rate_unlocked)
                           ? true
                           : false
                       "
@@ -888,6 +897,7 @@ export default {
       manager_pin_input: "",
       manager_pin_error: "",
       pending_manager_action: null,
+      rate_unlocked: false,
       shortcuts_list: [
         { key: "F2", action: __("تعديل سعر الصنف المحدد") },
         { key: "F3", action: __("البحث عن صنف") },
@@ -994,6 +1004,18 @@ export default {
       }
       this.remove_item_confirmed(item);
     },
+    unlock_rate_edit() {
+      // نفس مبدأ remove_item: فتح حقل السعر مؤجَّل لحد تحقّق PIN من
+      // السيرفر. الفتح يسري على الفاتورة الحالية كلها، لا صنف واحد،
+      // فمايبقاش لازم يدخل الكاشير الرقم لكل سطر يعدّله المدير.
+      if (this.rate_unlocked) {
+        return;
+      }
+      this.pending_manager_action = { type: "rate" };
+      this.manager_pin_input = "";
+      this.manager_pin_error = "";
+      this.manager_pin_dialog = true;
+    },
     remove_item_confirmed(item) {
       const index = this.items.findIndex(
         (el) => el.posa_row_id == item.posa_row_id
@@ -1021,6 +1043,8 @@ export default {
             vm.manager_pin_dialog = false;
             if (vm.pending_manager_action && vm.pending_manager_action.type === "remove") {
               vm.remove_item_confirmed(vm.pending_manager_action.item);
+            } else if (vm.pending_manager_action && vm.pending_manager_action.type === "rate") {
+              vm.rate_unlocked = true;
             }
             vm.pending_manager_action = null;
           } else {
@@ -1200,6 +1224,7 @@ export default {
       let old_invoice = null;
       evntBus.$emit("set_customer_readonly", false);
       this.expanded = [];
+      this.rate_unlocked = false;
       this.posa_offers = [];
       evntBus.$emit("set_pos_coupons", []);
       this.posa_coupons = [];

@@ -249,6 +249,8 @@ fixtures = [
                     "POS Profile-posa_thermal_print_enabled",
                     "POS Profile-posa_thermal_printer_name",
                     "POS Profile-posa_barcode_printer_name",
+                    "POS Profile-posa_require_manager_approval",
+                    "POS Profile-posa_manager_pin",
                     "Address-posa_delivery_charges",
                     "Sales Invoice-posa_delivery_charges",
                     "Sales Invoice-posa_delivery_charges_rate",
