@@ -1057,7 +1057,7 @@ export default {
     add_one(item) {
       item.qty++;
       if (item.qty == 0) {
-        this.remove_item(item);
+        this.remove_item_confirmed(item);
       }
       this.calc_stock_qty(item, item.qty);
       this.$forceUpdate();
@@ -1065,7 +1065,7 @@ export default {
     subtract_one(item) {
       item.qty--;
       if (item.qty == 0) {
-        this.remove_item(item);
+        this.remove_item_confirmed(item);
       }
       this.calc_stock_qty(item, item.qty);
       this.$forceUpdate();
@@ -2443,7 +2443,7 @@ export default {
                 (row_id) => row_id != item_to_remove.posa_row_id
               );
               offer.items = updated_item_offers;
-              this.remove_item(item_to_remove);
+              this.remove_item_confirmed(item_to_remove);
               existOffer.give_item_row_id = null;
               existOffer.give_item = null;
             }
@@ -2471,7 +2471,7 @@ export default {
               const diffQty = cheapestItem.qty - newItemOffer.qty;
               if (diffQty <= 0) {
                 newItemOffer.qty += diffQty;
-                this.remove_item(cheapestItem);
+                this.remove_item_confirmed(cheapestItem);
                 newItemOffer.posa_row_id = cheapestItem.posa_row_id;
                 newItemOffer.posa_is_replace = newItemOffer.posa_row_id;
               } else {
@@ -2510,7 +2510,7 @@ export default {
                     existItem.qty -= diff;
                   } else {
                     offerItem.qty += existItem.qty;
-                    this.remove_item(existItem);
+                    this.remove_item_confirmed(existItem);
                   }
                 }
               }
@@ -2543,7 +2543,7 @@ export default {
           (el) => el.row_id === invoiceOffer.row_id
         );
         this.posa_offers.splice(index, 1);
-        this.remove_item(item_to_remove);
+        this.remove_item_confirmed(item_to_remove);
       }
       if (invoiceOffer.offer === "Grand Total") {
         this.RemoveOnTotal(invoiceOffer);
@@ -2586,7 +2586,7 @@ export default {
           item.posa_is_offer = 0;
           if (diffQty <= 0) {
             item.qty = baseItem.qty;
-            this.remove_item(baseItem);
+            this.remove_item_confirmed(baseItem);
             item.posa_row_id = item.posa_is_replace;
           } else {
             baseItem.qty = diffQty;
@@ -2611,7 +2611,7 @@ export default {
           const diffQty = baseItem.qty - offer.given_qty;
           if (diffQty <= 0) {
             item.qty = baseItem.qty;
-            this.remove_item(baseItem);
+            this.remove_item_confirmed(baseItem);
             item.posa_row_id = item.posa_is_replace;
           } else {
             baseItem.qty = diffQty;
