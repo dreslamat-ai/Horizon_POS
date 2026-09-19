@@ -34,35 +34,33 @@
       @update:search="onCustomerSearchUpdate"
     >
       <template v-slot:item="data">
-        <template>
-          <v-list-item-content>
+                  <v-list-item-content>
             <v-list-item-title
               class="primary--text subtitle-1"
-              v-html="data.item.customer_name"
+              v-html="data.item.raw.customer_name"
             ></v-list-item-title>
             <v-list-item-subtitle
-              v-if="data.item.customer_name != data.item.name"
-              v-html="`ID: ${data.item.name}`"
+              v-if="data.item.raw.customer_name != data.item.raw.name"
+              v-html="`ID: ${data.item.raw.name}`"
             ></v-list-item-subtitle>
             <v-list-item-subtitle
-              v-if="data.item.tax_id"
-              v-html="`الرقم الضريبي : ${data.item.tax_id}`"
+              v-if="data.item.raw.tax_id"
+              v-html="`الرقم الضريبي : ${data.item.raw.tax_id}`"
             ></v-list-item-subtitle>
             <v-list-item-subtitle
-              v-if="data.item.email_id"
-              v-html="`الإيميل : ${data.item.email_id}`"
+              v-if="data.item.raw.email_id"
+              v-html="`الإيميل : ${data.item.raw.email_id}`"
             ></v-list-item-subtitle>
             <v-list-item-subtitle
-              v-if="data.item.mobile_no"
-              v-html="`رقم الموبايل : ${data.item.mobile_no}`"
+              v-if="data.item.raw.mobile_no"
+              v-html="`رقم الموبايل : ${data.item.raw.mobile_no}`"
             ></v-list-item-subtitle>
             <v-list-item-subtitle
-              v-if="data.item.primary_address"
-              v-html="`العنوان الرئيسي : ${data.item.primary_address}`"
+              v-if="data.item.raw.primary_address"
+              v-html="`العنوان الرئيسي : ${data.item.raw.primary_address}`"
             ></v-list-item-subtitle>
           </v-list-item-content>
         </template>
-      </template>
     </v-autocomplete>
     <div class="mb-8">
       <UpdateCustomer></UpdateCustomer>

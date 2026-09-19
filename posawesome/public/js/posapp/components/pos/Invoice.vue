@@ -77,8 +77,7 @@
             @change="update_delivery_charges()"
           >
             <template v-slot:item="data">
-              <template>
-                <v-list-item-content>
+                              <v-list-item-content>
                   <v-list-item-title
                     class="primary--text subtitle-1"
                     v-html="data.item.name"
@@ -88,7 +87,6 @@
                   ></v-list-item-subtitle>
                 </v-list-item-content>
               </template>
-            </template>
           </v-autocomplete>
         </v-col>
         <v-col cols="4" class="pb-0 mb-0 pt-0">
@@ -569,19 +567,17 @@
                       @change="set_batch_qty(item, $event)"
                     >
                       <template v-slot:item="data">
-                        <template>
-                          <v-list-item-content>
+                                                  <v-list-item-content>
                             <v-list-item-title
-                              v-html="data.item.batch_no"
+                              v-html="data.item.raw.batch_no"
                             ></v-list-item-title>
                             <v-list-item-subtitle
                               v-html="
-                                `الكمية المتاحة  '${data.item.batch_qty}' - تاريخ الصلاحية ${data.item.expiry_date}`
+                                `الكمية المتاحة  '${data.item.raw.batch_qty}' - تاريخ الصلاحية ${data.item.raw.expiry_date}`
                               "
                             ></v-list-item-subtitle>
                           </v-list-item-content>
                         </template>
-                      </template>
                     </v-autocomplete>
                   </v-col>
                   <v-col

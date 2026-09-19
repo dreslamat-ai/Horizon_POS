@@ -364,38 +364,36 @@
               @click:append="new_address"
             >
               <template v-slot:item="data">
-                <template>
-                  <v-list-item-content>
+                                  <v-list-item-content>
                     <v-list-item-title
                       class="primary--text subtitle-1"
-                      v-html="data.item.address_title"
+                      v-html="data.item.raw.address_title"
                     ></v-list-item-title>
                     <v-list-item-title
-                      v-html="data.item.address_line1"
+                      v-html="data.item.raw.address_line1"
                     ></v-list-item-title>
                     <v-list-item-subtitle
-                      v-if="data.item.custoaddress_line2mer_name"
-                      v-html="data.item.address_line2"
+                      v-if="data.item.raw.custoaddress_line2mer_name"
+                      v-html="data.item.raw.address_line2"
                     ></v-list-item-subtitle>
                     <v-list-item-subtitle
-                      v-if="data.item.city"
-                      v-html="data.item.city"
+                      v-if="data.item.raw.city"
+                      v-html="data.item.raw.city"
                     ></v-list-item-subtitle>
                     <v-list-item-subtitle
-                      v-if="data.item.state"
-                      v-html="data.item.state"
+                      v-if="data.item.raw.state"
+                      v-html="data.item.raw.state"
                     ></v-list-item-subtitle>
                     <v-list-item-subtitle
-                      v-if="data.item.country"
-                      v-html="data.item.mobile_no"
+                      v-if="data.item.raw.country"
+                      v-html="data.item.raw.mobile_no"
                     ></v-list-item-subtitle>
                     <v-list-item-subtitle
-                      v-if="data.item.address_type"
-                      v-html="data.item.address_type"
+                      v-if="data.item.raw.address_type"
+                      v-html="data.item.raw.address_type"
                     ></v-list-item-subtitle>
                   </v-list-item-content>
                 </template>
-              </template>
             </v-autocomplete>
           </v-col>
           <v-col cols="12" v-if="pos_profile.posa_display_additional_notes">
@@ -606,19 +604,17 @@
               :disabled="readonly"
             >
               <template v-slot:item="data">
-                <template>
-                  <v-list-item-content>
+                                  <v-list-item-content>
                     <v-list-item-title
                       class="primary--text subtitle-1"
-                      v-html="data.item.sales_person_name"
+                      v-html="data.item.raw.sales_person_name"
                     ></v-list-item-title>
                     <v-list-item-subtitle
-                      v-if="data.item.sales_person_name != data.item.name"
-                      v-html="`ID: ${data.item.name}`"
+                      v-if="data.item.raw.sales_person_name != data.item.raw.name"
+                      v-html="`ID: ${data.item.raw.name}`"
                     ></v-list-item-subtitle>
                   </v-list-item-content>
                 </template>
-              </template>
             </v-autocomplete>
           </v-col>
         </v-row>
