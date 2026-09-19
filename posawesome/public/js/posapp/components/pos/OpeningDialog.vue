@@ -53,9 +53,10 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" dark @click="go_desk">إلغاء</v-btn>
+          <v-btn color="#DC2626" variant="flat" dark @click="go_desk">إلغاء</v-btn>
           <v-btn
-            color="success"
+            color="#16A34A"
+            variant="flat"
             :disabled="is_loading"
             dark
             @click="submit_dialog"

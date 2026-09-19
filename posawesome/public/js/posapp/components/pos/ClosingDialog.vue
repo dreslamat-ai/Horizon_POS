@@ -53,10 +53,10 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" dark @click="close_dialog">{{
+          <v-btn color="#DC2626" variant="flat" dark @click="close_dialog">{{
             __('إغلاق')
           }}</v-btn>
-          <v-btn color="success" dark @click="submit_dialog">{{
+          <v-btn color="#16A34A" variant="flat" dark @click="submit_dialog">{{
             __('تسجيل')
           }}</v-btn>
         </v-card-actions>

@@ -686,10 +686,10 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="error" dark @click="phone_dialog = false">{{
+            <v-btn color="#DC2626" variant="flat" dark @click="phone_dialog = false">{{
               __("إغلاق")
             }}</v-btn>
-            <v-btn color="primary" dark @click="request_payment">{{
+            <v-btn color="#16A34A" variant="flat" dark @click="request_payment">{{
               __("طلب")
             }}</v-btn>
           </v-card-actions>

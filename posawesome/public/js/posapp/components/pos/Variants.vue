@@ -5,7 +5,7 @@
         <v-card-title>
           <span class="headline primary--text">Select Item</span>
           <v-spacer></v-spacer>
-          <v-btn color="error" dark @click="close_dialog">Close</v-btn>
+          <v-btn color="grey-darken-1" variant="flat" dark @click="close_dialog">{{ __('إغلاق') }}</v-btn>
         </v-card-title>
         <v-card-text class="pa-0">
           <v-container v-if="parentItem">
