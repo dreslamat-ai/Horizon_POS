@@ -1230,9 +1230,15 @@ export default {
       this.posa_coupons = [];
       this.return_doc = "";
       const doc = this.get_invoice_doc();
-      if (doc.name) {
+      // فتح فاتورة معلقة من قائمة "الفواتير المعلقة" (data.name) وهي
+      // نفس الفاتورة المفتوحة حاليًا (doc.name) كانت بتحاول تحفظ
+      // نفسها على نفسها بنسخة modified محليّة أقدم من نسخة السيرفر —
+      // TimestampMismatchError، وبعدها "بيانات مفقودة في جدول
+      // الأصناف" لأن doc.items فاضية وقت إعادة العرض. مفيش داعي
+      // لحفظ فاتورة أصلاً موجودة على السيرفر بنفس اسمها.
+      if (doc.name && doc.name !== data.name) {
         old_invoice = this.update_invoice(doc);
-      } else {
+      } else if (!doc.name) {
         if (doc.items.length) {
           old_invoice = this.update_invoice(doc);
         }
