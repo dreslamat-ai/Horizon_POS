@@ -3018,12 +3018,6 @@ export default {
     document.removeEventListener("keydown", this._posaGlobalShortcuts);
   },
   watch: {
-    items: {
-      deep: true,
-      handler() {
-        this.check_bundle_match();
-      },
-    },
     customer() {
       this.close_payments();
       evntBus.$emit("set_customer", this.customer);
@@ -3045,9 +3039,15 @@ export default {
       });
     },
     items: {
+      // كان `items` مكرَّرًا مرّتين في هذا الكائن (تعريف الحزمة الجديد
+      // فوق، وتعريف العروض القديم هنا) — في JavaScript آخر مفتاح مكرَّر
+      // يطغى على الأوّل بالكامل، فـ check_bundle_match لم يكن يُستدعى
+      // أبدًا. اكتُشف بالتحقّق البصري الفعلي (١٩ سبتمبر ٢٠٢٦): توست
+      // الحزمة لم يظهر رغم أن كل بيانات المطابقة كانت صحيحة ١٠٠٪.
       deep: true,
       handler(items) {
         this.handelOffers();
+        this.check_bundle_match();
         this.$forceUpdate();
       },
     },
