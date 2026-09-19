@@ -1,4 +1,3 @@
-w
 <template>
   <div>
     <v-card
@@ -21,7 +20,7 @@ w
               :label="frappe._('المبلغ المدفوع')"
               background-color="white"
               hide-details
-              :value="formtCurrency(total_payments)"
+              :model-value="formtCurrency(total_payments)"
               readonly
               :prefix="currencySymbol(invoice_doc.currency)"
               dense
@@ -34,7 +33,7 @@ w
               :label="frappe._(diff_lable)"
               background-color="white"
               hide-details
-              :value="formtCurrency(diff_payment)"
+              :model-value="formtCurrency(diff_payment)"
               readonly
               :prefix="currencySymbol(invoice_doc.currency)"
               dense
@@ -64,7 +63,7 @@ w
               :label="frappe._('الرصيد الباقي')"
               background-color="white"
               hide-details
-              :value="formtCurrency(credit_change)"
+              :model-value="formtCurrency(credit_change)"
               readonly
               :prefix="currencySymbol(invoice_doc.currency)"
               dense
@@ -87,7 +86,7 @@ w
                 :label="frappe._(payment.mode_of_payment)"
                 background-color="white"
                 hide-details
-                :value="formtCurrency(payment.amount)"
+                :model-value="formtCurrency(payment.amount)"
                 @change="
                   setFormatedCurrency(payment, 'amount', null, true, $event)
                 "
@@ -183,7 +182,7 @@ w
               :label="frappe._('يمكنك استبدال حتى')"
               background-color="white"
               hide-details
-              :value="formtFloat(available_pioints_amount)"
+              :model-value="formtFloat(available_pioints_amount)"
               :prefix="currencySymbol(invoice_doc.currency)"
               disabled
             ></v-text-field>
@@ -221,7 +220,7 @@ w
               :label="frappe._('يمكنك استبدال رصيد حتى')"
               background-color="white"
               hide-details
-              :value="formtCurrency(available_customer_credit)"
+              :model-value="formtCurrency(available_customer_credit)"
               :prefix="currencySymbol(invoice_doc.currency)"
               disabled
             ></v-text-field>
@@ -238,7 +237,7 @@ w
               :label="frappe._('صافي الإجمالي')"
               background-color="white"
               hide-details
-              :value="formtCurrency(invoice_doc.net_total)"
+              :model-value="formtCurrency(invoice_doc.net_total)"
               disabled
               :prefix="currencySymbol(invoice_doc.currency)"
             ></v-text-field>
@@ -251,7 +250,7 @@ w
               :label="frappe._('الضرائب والمصاريف')"
               background-color="white"
               hide-details
-              :value="formtCurrency(invoice_doc.total_taxes_and_charges)"
+              :model-value="formtCurrency(invoice_doc.total_taxes_and_charges)"
               disabled
               :prefix="currencySymbol(invoice_doc.currency)"
             ></v-text-field>
@@ -264,7 +263,7 @@ w
               :label="frappe._('القيمة الإجمالية')"
               background-color="white"
               hide-details
-              :value="formtCurrency(invoice_doc.total)"
+              :model-value="formtCurrency(invoice_doc.total)"
               disabled
               :prefix="currencySymbol(invoice_doc.currency)"
             ></v-text-field>
@@ -277,7 +276,7 @@ w
               :label="frappe._('قيمة الخصم')"
               background-color="white"
               hide-details
-              :value="formtCurrency(invoice_doc.discount_amount)"
+              :model-value="formtCurrency(invoice_doc.discount_amount)"
               disabled
               :prefix="currencySymbol(invoice_doc.currency)"
             ></v-text-field>
@@ -290,7 +289,7 @@ w
               :label="frappe._('الإجمالي')"
               background-color="white"
               hide-details
-              :value="formtCurrency(invoice_doc.grand_total)"
+              :model-value="formtCurrency(invoice_doc.grand_total)"
               disabled
               :prefix="currencySymbol(invoice_doc.currency)"
             ></v-text-field>
@@ -303,7 +302,7 @@ w
               :label="frappe._('الإجمالي المقرب')"
               background-color="white"
               hide-details
-              :value="formtCurrency(invoice_doc.rounded_total)"
+              :model-value="formtCurrency(invoice_doc.rounded_total)"
               disabled
               :prefix="currencySymbol(invoice_doc.currency)"
             ></v-text-field>
@@ -411,7 +410,7 @@ w
               rows="2"
               :label="frappe._('ملاحظات اضافية')"
               v-model="invoice_doc.posa_notes"
-              :value="invoice_doc.posa_notes"
+              :model-value="invoice_doc.posa_notes"
             ></v-textarea>
           </v-col>
         </v-row>
@@ -566,7 +565,7 @@ w
                 :label="frappe._('الرصيد المتاح')"
                 background-color="white"
                 hide-details
-                :value="formtCurrency(row.total_credit)"
+                :model-value="formtCurrency(row.total_credit)"
                 disabled
                 :prefix="currencySymbol(invoice_doc.currency)"
               ></v-text-field>
