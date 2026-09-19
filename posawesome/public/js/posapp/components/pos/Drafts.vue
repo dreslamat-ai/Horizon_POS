@@ -15,7 +15,8 @@
                   :headers="headers"
                   :items="dialog_data"
                   item-key="name"
-                  class="elevation-1"
+                  class="elevation-1 drafts-table"
+                  :row-props="row_props"
                   @click:row="select_row"
                 >
                   <template v-slot:item.posting_time="{ item }">
@@ -26,14 +27,23 @@
                     {{ formtCurrency(item.grand_total) }}
                   </template>
                 </v-data-table>
+                <p class="drafts-hint" v-if="dialog_data.length > 1">
+                  {{ __('اضغط على الفاتورة المطلوبة لتحديدها، ثم "إختيار"') }}
+                </p>
               </v-col>
             </v-row>
           </v-container>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" dark @click="close_dialog">إغلاق</v-btn>
-          <v-btn color="success" dark @click="submit_dialog">إختيار</v-btn>
+          <v-btn color="grey darken-1" dark @click="close_dialog">إغلاق</v-btn>
+          <v-btn
+            color="primary"
+            dark
+            :disabled="!selected.length"
+            @click="submit_dialog"
+            >إختيار</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -96,6 +106,14 @@ export default {
     select_row(event, { item }) {
       this.selected = [item];
     },
+    // لتلوين الصف المختار بصريًا — rowProps مدعومة فعليًا في نسخة
+    // Vuetify3 المثبتة هنا (VDataTableRows.js)، بلا الحاجة لـshow-select
+    // المعطوبة في هذا الإصدار (راجع تعليق select_row أعلاه).
+    row_props({ item }) {
+      const is_selected =
+        this.selected.length && this.selected[0].name === item.name;
+      return { class: is_selected ? 'selected-draft-row' : '' };
+    },
     submit_dialog() {
       if (this.selected.length > 0) {
         evntBus.$emit('load_invoice', this.selected[0]);
@@ -107,7 +125,23 @@ export default {
     evntBus.$on('open_drafts', (data) => {
       this.draftsDialog = true;
       this.dialog_data = data;
+      this.selected = [];
     });
   },
 };
 </script>
+
+<style scoped>
+.drafts-table :deep(tr.selected-draft-row) {
+  background-color: rgba(29, 45, 68, 0.12);
+  box-shadow: inset 3px 0 0 #1d2d44;
+}
+.drafts-table :deep(tbody tr) {
+  cursor: pointer;
+}
+.drafts-hint {
+  margin: 8px 12px 0;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.85rem;
+}
+</style>
