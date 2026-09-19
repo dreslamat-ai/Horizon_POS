@@ -9,10 +9,10 @@
         </v-card-title>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" @click="cancel_invoice">
+          <v-btn color="#DC2626" variant="flat" dark @click="cancel_invoice">
             {{ __("إلغاء") }}
           </v-btn>
-          <v-btn color="warning" @click="cancel_dialog = false">
+          <v-btn color="#16A34A" variant="flat" dark @click="cancel_dialog = false">
             {{ __("رجوع") }}
           </v-btn>
         </v-card-actions>
