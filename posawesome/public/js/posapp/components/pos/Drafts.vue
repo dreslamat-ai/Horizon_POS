@@ -1,11 +1,9 @@
 <template>
   <v-row justify="center">
     <v-dialog v-model="draftsDialog" max-width="900px">
-      <v-card>
-        <v-card-title>
-          <span class="headline primary--text">{{
-            __('إختار الفاتورة المعلقة')
-          }}</span>
+      <v-card class="drafts-card" rounded="lg">
+        <v-card-title class="drafts-title">
+          {{ __('إختار الفاتورة المعلقة') }}
         </v-card-title>
         <v-card-text class="pa-0">
           <v-container>
@@ -15,7 +13,7 @@
                   :headers="headers"
                   :items="dialog_data"
                   item-key="name"
-                  class="elevation-1 drafts-table"
+                  class="elevation-0 drafts-table"
                   :row-props="row_props"
                   @click:row="select_row"
                 >
@@ -34,12 +32,16 @@
             </v-row>
           </v-container>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="drafts-actions">
           <v-spacer></v-spacer>
-          <v-btn color="grey darken-1" dark @click="close_dialog">إغلاق</v-btn>
+          <v-btn variant="outlined" color="grey-darken-1" @click="close_dialog"
+            >إغلاق</v-btn
+          >
           <v-btn
-            color="primary"
+            color="#1D2D44"
+            variant="flat"
             dark
+            class="drafts-choose-btn"
             :disabled="!selected.length"
             @click="submit_dialog"
             >إختيار</v-btn
@@ -132,6 +134,23 @@ export default {
 </script>
 
 <style scoped>
+.drafts-card {
+  overflow: hidden;
+}
+.drafts-title {
+  background: #1d2d44;
+  color: #f7f3ea;
+  font-weight: 700;
+  padding: 18px 20px;
+  font-size: 1.1rem;
+}
+.drafts-table :deep(thead tr) {
+  background-color: #f7f3ea;
+}
+.drafts-table :deep(thead th) {
+  color: #1d2d44 !important;
+  font-weight: 700 !important;
+}
 .drafts-table :deep(tr.selected-draft-row) {
   background-color: rgba(29, 45, 68, 0.12);
   box-shadow: inset 3px 0 0 #1d2d44;
@@ -139,9 +158,18 @@ export default {
 .drafts-table :deep(tbody tr) {
   cursor: pointer;
 }
+.drafts-table :deep(tbody tr:hover) {
+  background-color: rgba(29, 45, 68, 0.06);
+}
 .drafts-hint {
-  margin: 8px 12px 0;
-  color: rgba(0, 0, 0, 0.6);
+  margin: 10px 12px 0;
+  color: #6b7280;
   font-size: 0.85rem;
+}
+.drafts-actions {
+  padding: 12px 16px 16px;
+}
+.drafts-choose-btn {
+  min-width: 110px;
 }
 </style>
