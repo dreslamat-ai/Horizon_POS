@@ -120,6 +120,9 @@ doc_events = {
         "validate": "posawesome.posawesome.api.customer.validate",
         "after_insert": "posawesome.posawesome.api.customer.after_insert",
     },
+    "Item": {
+        "after_insert": "posawesome.posawesome.api.barcode_print.auto_generate_barcode_on_insert",
+    },
 }
 
 # Scheduled Tasks

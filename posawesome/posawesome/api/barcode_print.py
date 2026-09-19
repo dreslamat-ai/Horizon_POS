@@ -57,17 +57,57 @@ def _ean13_checksum(digits_12):
 	return (10 - (total % 10)) % 10
 
 
-@frappe.whitelist()
-def generate_ean13_barcode():
-	"""يولّد باركود EAN-13 فريد (بادئة الاستخدام الداخلي ٢٠) غير
-	مستخدَم من قبل — يُتحقَّق من التفرد فعليًا في قاعدة البيانات قبل
-	إرجاعه، لا يُفترَض العشوائية كافية وحدها."""
+def _generate_unique_ean13():
+	"""حلقة التوليد المشتركة — يستخدمها الطلب اليدوي من ديالوج الطباعة
+	وHook الإنشاء التلقائي معًا، بلا تكرار منطق."""
 	for _attempt in range(20):
 		body = EAN13_INTERNAL_PREFIX + "".join(str(random.randint(0, 9)) for _ in range(10))
 		candidate = body + str(_ean13_checksum(body))
 		if not frappe.db.exists("Item Barcode", {"barcode": candidate}):
 			return candidate
-	frappe.throw(_("تعذّر توليد باركود فريد، حاول مرة أخرى"))
+	return None
+
+
+@frappe.whitelist()
+def generate_ean13_barcode():
+	"""يولّد باركود EAN-13 فريد (بادئة الاستخدام الداخلي ٢٠) غير
+	مستخدَم من قبل — يُتحقَّق من التفرد فعليًا في قاعدة البيانات قبل
+	إرجاعه، لا يُفترَض العشوائية كافية وحدها."""
+	candidate = _generate_unique_ean13()
+	if not candidate:
+		frappe.throw(_("تعذّر توليد باركود فريد، حاول مرة أخرى"))
+	return candidate
+
+
+def auto_generate_barcode_on_insert(doc, method=None):
+	"""Hook على Item.after_insert — بأمر صريح من المالك (١٩ سبتمبر
+	٢٠٢٦): كل صنف جديد قابل للبيع فعليًا يولَّد له باركود EAN-13
+	تلقائيًا بلا استثناء ولا خانة تفعيل، بما في ذلك أي عميل مستقبلي
+	على Horizon SaaS لا سترة فقط.
+
+	مستثنى عمدًا: أصناف القوالب (has_variants=1) — غير قابلة للبيع
+	مباشرة، ومصنف عنده باركود بالفعل (لو أُدخل يدويًا وقت الإنشاء) —
+	لا نكرّر ولا نتجاوزه."""
+	if doc.get("has_variants"):
+		return
+	if doc.get("barcodes"):
+		return
+	candidate = _generate_unique_ean13()
+	if not candidate:
+		frappe.log_error(
+			"تعذّر توليد باركود تلقائي فريد لصنف جديد", f"auto barcode: {doc.name}"
+		)
+		return
+	barcode_row = frappe.new_doc("Item Barcode")
+	barcode_row.update(
+		{
+			"parent": doc.name,
+			"parenttype": "Item",
+			"parentfield": "barcodes",
+			"barcode": candidate,
+		}
+	)
+	barcode_row.insert(ignore_permissions=True)
 
 
 @frappe.whitelist()
