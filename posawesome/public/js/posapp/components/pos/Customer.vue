@@ -25,7 +25,7 @@
       background-color="white"
       :no-data-text="__('العميل غير موجود')"
       hide-details
-      :filter="customFilter"
+      :filter-keys="['customer_name', 'tax_id', 'email_id', 'mobile_no', 'name']"
       :disabled="readonly"
       append-icon="mdi-plus"
       @click:append="new_customer"
