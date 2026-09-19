@@ -72,7 +72,7 @@
             background-color="white"
             :no-data-text="__('المصاريف غير موجودة')"
             hide-details
-            :filter-keys="['name']"
+            :filter-keys="['raw.name']"
             :disabled="readonly"
             @change="update_delivery_charges()"
           >

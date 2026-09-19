@@ -359,7 +359,7 @@
               background-color="white"
               no-data-text="العنوان غير موجود"
               hide-details
-              :filter-keys="['address_title', 'address_line1', 'address_line2', 'city', 'name']"
+              :filter-keys="['raw.address_title', 'raw.address_line1', 'raw.address_line2', 'raw.city', 'raw.name']"
               append-icon="mdi-plus"
               @click:append="new_address"
             >
@@ -602,7 +602,7 @@
               background-color="white"
               :no-data-text="__('مسؤول المبيعات غير موجود')"
               hide-details
-              :filter-keys="['sales_person_name', 'name']"
+              :filter-keys="['raw.sales_person_name', 'raw.name']"
               :disabled="readonly"
             >
               <template v-slot:item="data">
