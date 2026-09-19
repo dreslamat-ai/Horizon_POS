@@ -2995,18 +2995,27 @@ export default {
     evntBus.$off("set_all_items");
   },
   created() {
-    document.addEventListener("keydown", this.shortOpenPayment.bind(this));
-    document.addEventListener("keydown", this.shortDeleteFirstItem.bind(this));
-    document.addEventListener("keydown", this.shortOpenFirstItem.bind(this));
-    document.addEventListener("keydown", this.shortSelectDiscount.bind(this));
-    document.addEventListener("keydown", this.posaGlobalShortcuts.bind(this));
+    // .bind(this) بيرجّع دالة جديدة كل نداء، فـremoveEventListener
+    // بمرجع الدالة الأصلية (بلا bind) ماكانش بيطابق أبدًا المستمع
+    // الحقيقي المُسجَّل — المستمعات الخمسة دي ماكانت بتُشال خالص عند
+    // تدمير المكوّن، فتتراكم مع أي إعادة تركيب (remount).
+    this._shortOpenPayment = this.shortOpenPayment.bind(this);
+    this._shortDeleteFirstItem = this.shortDeleteFirstItem.bind(this);
+    this._shortOpenFirstItem = this.shortOpenFirstItem.bind(this);
+    this._shortSelectDiscount = this.shortSelectDiscount.bind(this);
+    this._posaGlobalShortcuts = this.posaGlobalShortcuts.bind(this);
+    document.addEventListener("keydown", this._shortOpenPayment);
+    document.addEventListener("keydown", this._shortDeleteFirstItem);
+    document.addEventListener("keydown", this._shortOpenFirstItem);
+    document.addEventListener("keydown", this._shortSelectDiscount);
+    document.addEventListener("keydown", this._posaGlobalShortcuts);
   },
   destroyed() {
-    document.removeEventListener("keydown", this.shortOpenPayment);
-    document.removeEventListener("keydown", this.shortDeleteFirstItem);
-    document.removeEventListener("keydown", this.shortOpenFirstItem);
-    document.removeEventListener("keydown", this.shortSelectDiscount);
-    document.removeEventListener("keydown", this.posaGlobalShortcuts);
+    document.removeEventListener("keydown", this._shortOpenPayment);
+    document.removeEventListener("keydown", this._shortDeleteFirstItem);
+    document.removeEventListener("keydown", this._shortOpenFirstItem);
+    document.removeEventListener("keydown", this._shortSelectDiscount);
+    document.removeEventListener("keydown", this._posaGlobalShortcuts);
   },
   watch: {
     items: {
