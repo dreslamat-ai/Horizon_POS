@@ -419,7 +419,8 @@ function posa_show_barcode_print_dialog(frm) {
 	['print_a4', 'print_qz'].forEach(function (fname) {
 		dialog.fields_dict[fname].$input
 			.removeClass('btn-primary btn-default')
-			.addClass('btn-primary');
+			.addClass('btn-primary')
+			.css({ height: '60px', 'font-size': '15px' }); // ضعف الارتفاع الافتراضي بطلب المالك
 	});
 
 	add_number_stepper(dialog, 'qty', 1, 1);
