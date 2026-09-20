@@ -258,11 +258,13 @@ def _parse_items(items, price_list=None):
 def get_barcode_preview_html(
 	item_code, barcode_value, label_width_mm=50, label_height_mm=30,
 	show_price=0, show_company=0, company_name=None, price_list=None,
+	barcode_height_mm=None,
 ):
 	"""معاينة حيّة لملصق واحد — تتحدّث في ديالوج الطباعة مع كل تغيير
-	(صنف، باركود مختار، مقاس، خيار سعر/شركة) بلا حاجة لفتح نافذة
-	طباعة فعلية. أسماء الأصناف مقصورة على posa-preview- عمدًا حتى لا
-	تتعارض مع أي كلاس بنفس الاسم في صفحة POS Profile نفسها."""
+	(صنف، باركود مختار، مقاس، خيار سعر/شركة، ارتفاع الباركود) بلا
+	حاجة لفتح نافذة طباعة فعلية. أسماء الأصناف مقصورة على
+	posa-preview- عمدًا حتى لا تتعارض مع أي كلاس بنفس الاسم في صفحة
+	POS Profile نفسها. barcode_height_mm فاضي = حساب تلقائي قديم."""
 	item_name, standard_rate = frappe.db.get_value(
 		"Item", item_code, ["item_name", "standard_rate"]
 	) or (item_code, 0)
@@ -274,7 +276,7 @@ def get_barcode_preview_html(
 
 	label_width_mm = float(label_width_mm)
 	label_height_mm = float(label_height_mm)
-	svg = _barcode_svg(barcode_value, module_height_mm=max(6, label_height_mm - 14))
+	svg = _barcode_svg(barcode_value, module_height_mm=flt(barcode_height_mm) or max(6, label_height_mm - 14))
 	name_line = frappe.utils.escape_html((item_name or item_code)[:32])
 
 	company_html = (
@@ -321,6 +323,7 @@ def get_label_presets():
 def get_barcode_zpl(
 	items, label_width_mm=50, label_height_mm=30, dpi=203,
 	show_price=0, show_company=0, company_name=None, price_list=None,
+	barcode_height_mm=None,
 ):
 	"""يولّد نص ZPL خام لقائمة أصناف — نسخة واحدة لكل قيمة qty.
 	السعر واسم الشركة اختياريان بطلب صريح من المالك (٢٠ سبتمبر ٢٠٢٦) —
@@ -336,7 +339,9 @@ def get_barcode_zpl(
 	dpi = int(dpi)
 	width_dots = round(float(label_width_mm) / 25.4 * dpi)
 	height_dots = round(float(label_height_mm) / 25.4 * dpi)
-	barcode_height_dots = max(30, height_dots - 70)
+	barcode_height_dots = (
+		round(flt(barcode_height_mm) / 25.4 * dpi) if flt(barcode_height_mm) else max(30, height_dots - 70)
+	)
 
 	labels = []
 	for row in parsed:
@@ -368,6 +373,7 @@ def get_barcode_zpl(
 def get_barcode_a4_html(
 	items, label_width_mm=50, label_height_mm=30,
 	show_price=0, show_company=0, company_name=None, price_list=None,
+	barcode_height_mm=None,
 ):
 	"""يولّد صفحة HTML قائمة بذاتها — شبكة باركودات بحجم A4، جاهزة
 	للطباعة المباشرة من نافذة متصفح جديدة (window.print()). السعر
@@ -387,7 +393,10 @@ def get_barcode_a4_html(
 
 	cells = []
 	for row in parsed:
-		svg = _barcode_svg(row["barcode_value"], module_height_mm=max(6, label_height_mm - 14))
+		svg = _barcode_svg(
+			row["barcode_value"],
+			module_height_mm=flt(barcode_height_mm) or max(6, label_height_mm - 14),
+		)
 		name_line = frappe.utils.escape_html(row["item_name"][:32])
 		company_html = f'<div class="label-company" dir="rtl">{company_name}</div>' if show_company and company_name else ""
 		price_html = f'<div class="label-price">{row["rate"]:.2f}</div>' if show_price else ""

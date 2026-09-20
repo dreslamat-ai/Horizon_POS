@@ -68,6 +68,12 @@ function posa_show_barcode_print_dialog(frm) {
 		return [dialog.get_value('custom_width') || 50, dialog.get_value('custom_height') || 30];
 	}
 
+	// تحكّم صريح بطلب المالك (٢٠ سبتمبر ٢٠٢٦) — بدل حساب تلقائي ثابت
+	// يفشل ينسّق مع بعض مقاسات الملصقات الحقيقية.
+	function get_barcode_height_mm(dialog) {
+		return dialog.get_value('barcode_height_mm') || 16;
+	}
+
 	function refresh_barcode_choice_options(dialog) {
 		const options = current_barcodes.map((b) => `${b.barcode} (${__('مسجَّل')})`);
 		options.push(`${POSA_MANUAL_ENTRY} ${__('— أدخل باركود جديد يدويًا')}`);
@@ -145,6 +151,7 @@ function posa_show_barcode_print_dialog(frm) {
 				show_company: dialog.get_value('show_company') ? 1 : 0,
 				company_name: frm.doc.company,
 				price_list: frm.doc.selling_price_list,
+				barcode_height_mm: get_barcode_height_mm(dialog),
 			},
 			callback: function (r) {
 				dialog.fields_dict.barcode_preview.$wrapper.html(r.message);
@@ -223,6 +230,11 @@ function posa_show_barcode_print_dialog(frm) {
 				depends_on: "eval:doc.preset=='مخصّص'",
 				onchange: function () { refresh_preview(dialog); },
 			},
+			{
+				fieldtype: 'Int', fieldname: 'barcode_height_mm', label: __('ارتفاع شريط الباركود (مم)'), default: 16,
+				description: __('لتنسيق الملصق — قلّله لو الباركود بيطلع خارج حدود الملصق أو فوق النص'),
+				onchange: function () { refresh_preview(dialog); },
+			},
 			{ fieldtype: 'Column Break' },
 			{
 				fieldtype: 'Check', fieldname: 'show_price', label: __('اطبع السعر على الملصق'),
@@ -251,6 +263,7 @@ function posa_show_barcode_print_dialog(frm) {
 							show_company: dialog.get_value('show_company') ? 1 : 0,
 							company_name: frm.doc.company,
 							price_list: frm.doc.selling_price_list,
+							barcode_height_mm: get_barcode_height_mm(dialog),
 						},
 						callback: function (r) {
 							const win = window.open('', '_blank');
@@ -282,6 +295,7 @@ function posa_show_barcode_print_dialog(frm) {
 						show_company: dialog.get_value('show_company') ? 1 : 0,
 						company_name: frm.doc.company,
 						price_list: frm.doc.selling_price_list,
+						barcode_height_mm: get_barcode_height_mm(dialog),
 					},
 					callback: function (r) {
 						const config = qz.configs.create(printer_name);
