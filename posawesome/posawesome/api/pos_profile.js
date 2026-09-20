@@ -49,7 +49,6 @@ function posa_connect_qz() {
 }
 
 const POSA_MANUAL_ENTRY = '__manual__';
-const POSA_AUTO_GENERATE = '__auto__';
 
 function posa_show_barcode_print_dialog(frm) {
 	const presets = {
@@ -72,7 +71,6 @@ function posa_show_barcode_print_dialog(frm) {
 	function refresh_barcode_choice_options(dialog) {
 		const options = current_barcodes.map((b) => `${b.barcode} (${__('مسجَّل')})`);
 		options.push(`${POSA_MANUAL_ENTRY} ${__('— أدخل باركود جديد يدويًا')}`);
-		options.push(`${POSA_AUTO_GENERATE} ${__('— ولّد باركود تلقائيًا (EAN-13)')}`);
 		dialog.fields_dict.barcode_choice.df.options = options.join('\n');
 		dialog.fields_dict.barcode_choice.refresh();
 		dialog.set_value('barcode_choice', options[0]);
@@ -94,15 +92,6 @@ function posa_show_barcode_print_dialog(frm) {
 	function on_barcode_choice_change(dialog) {
 		const choice = (dialog.get_value('barcode_choice') || '').split(' ')[0];
 		dialog.set_df_property('manual_barcode', 'hidden', choice !== POSA_MANUAL_ENTRY);
-		dialog.set_df_property('generated_barcode_preview', 'hidden', choice !== POSA_AUTO_GENERATE);
-		if (choice === POSA_AUTO_GENERATE) {
-			frappe.call({
-				method: 'posawesome.posawesome.api.barcode_print.generate_ean13_barcode',
-				callback: function (r) {
-					dialog.set_value('generated_barcode_preview', r.message);
-				},
-			});
-		}
 	}
 
 	// يرجّع Promise تتحلّ لقيمة الباركود النهائية — لو يدوي/مولَّد
@@ -113,18 +102,6 @@ function posa_show_barcode_print_dialog(frm) {
 		if (choice === POSA_MANUAL_ENTRY) {
 			const value = (dialog.get_value('manual_barcode') || '').trim();
 			if (!value) return Promise.reject(__('اكتب قيمة الباركود اليدوي'));
-			return new Promise(function (resolve, reject) {
-				frappe.call({
-					method: 'posawesome.posawesome.api.barcode_print.add_item_barcode',
-					args: { item_code, barcode_value: value },
-					callback: function (r) { resolve(r.message.barcode); },
-					error: reject,
-				});
-			});
-		}
-		if (choice === POSA_AUTO_GENERATE) {
-			const value = dialog.get_value('generated_barcode_preview');
-			if (!value) return Promise.reject(__('استنّى توليد الباركود'));
 			return new Promise(function (resolve, reject) {
 				frappe.call({
 					method: 'posawesome.posawesome.api.barcode_print.add_item_barcode',
@@ -165,7 +142,6 @@ function posa_show_barcode_print_dialog(frm) {
 				onchange: function () { on_barcode_choice_change(dialog); },
 			},
 			{ fieldtype: 'Data', fieldname: 'manual_barcode', label: __('الباركود اليدوي (رقم أو حروف)'), hidden: 1 },
-			{ fieldtype: 'Data', fieldname: 'generated_barcode_preview', label: __('الباركود المولَّد'), read_only: 1, hidden: 1 },
 			{ fieldtype: 'Column Break' },
 			{ fieldtype: 'Int', fieldname: 'qty', label: __('الكمية'), default: 1 },
 			{
@@ -203,6 +179,9 @@ function posa_show_barcode_print_dialog(frm) {
 				fieldtype: 'Int', fieldname: 'custom_height', label: __('الارتفاع (مم)'), default: 30,
 				depends_on: "eval:doc.preset=='مخصّص'",
 			},
+			{ fieldtype: 'Column Break' },
+			{ fieldtype: 'Check', fieldname: 'show_price', label: __('اطبع السعر على الملصق') },
+			{ fieldtype: 'Check', fieldname: 'show_company', label: __('اطبع اسم الشركة على الملصق') },
 			{ fieldtype: 'Section Break' },
 			{
 				fieldtype: 'Button', fieldname: 'print_a4', label: __('طباعة A4 (صفحة عادية، بلا QZ Tray)'),
@@ -214,7 +193,13 @@ function posa_show_barcode_print_dialog(frm) {
 					const [w, h] = get_label_size(dialog);
 					frappe.call({
 						method: 'posawesome.posawesome.api.barcode_print.get_barcode_a4_html',
-						args: { items: items_list, label_width_mm: w, label_height_mm: h },
+						args: {
+							items: items_list, label_width_mm: w, label_height_mm: h,
+							show_price: dialog.get_value('show_price') ? 1 : 0,
+							show_company: dialog.get_value('show_company') ? 1 : 0,
+							company_name: frm.doc.company,
+							price_list: frm.doc.selling_price_list,
+						},
 						callback: function (r) {
 							const win = window.open('', '_blank');
 							win.document.write(r.message);
@@ -239,7 +224,13 @@ function posa_show_barcode_print_dialog(frm) {
 			posa_connect_qz().then(function () {
 				frappe.call({
 					method: 'posawesome.posawesome.api.barcode_print.get_barcode_zpl',
-					args: { items: items_list, label_width_mm: w, label_height_mm: h },
+					args: {
+						items: items_list, label_width_mm: w, label_height_mm: h,
+						show_price: dialog.get_value('show_price') ? 1 : 0,
+						show_company: dialog.get_value('show_company') ? 1 : 0,
+						company_name: frm.doc.company,
+						price_list: frm.doc.selling_price_list,
+					},
 					callback: function (r) {
 						const config = qz.configs.create(printer_name);
 						qz.print(config, [{ type: 'raw', format: 'plain', data: r.message.zpl }])
