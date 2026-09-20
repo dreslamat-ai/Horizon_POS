@@ -74,6 +74,31 @@ function posa_show_barcode_print_dialog(frm) {
 		return dialog.get_value('barcode_height_mm') || 16;
 	}
 
+	// أسهم زيادة/تقليل مخصَّصة لكل حقل رقمي — أسهم input[type=number]
+	// الافتراضية مش ظاهرة في هذا الفورم (bootstrap.css بيضيّقها بلا
+	// إخفائها فعليًا لكن بلا وضوح كافٍ)، بطلب صريح من المالك.
+	function add_number_stepper(dialog, fieldname, step, min_value) {
+		const field = dialog.fields_dict[fieldname];
+		if (!field || !field.$input) return;
+		const $input = field.$input;
+		$input.css({ 'padding-left': '22px' });
+		const $stepper = $(
+			'<div class="posa-stepper" style="position:absolute;left:1px;top:0;bottom:0;display:flex;flex-direction:column;width:20px;">' +
+				'<button type="button" class="posa-step-up" style="flex:1;border:none;background:#f0f0f0;cursor:pointer;font-size:9px;line-height:1;">&#9650;</button>' +
+				'<button type="button" class="posa-step-down" style="flex:1;border:none;background:#f0f0f0;cursor:pointer;font-size:9px;line-height:1;border-top:1px solid #ddd;">&#9660;</button>' +
+			'</div>'
+		);
+		$input.parent().css('position', 'relative').append($stepper);
+		function apply(delta) {
+			const cur = parseFloat(dialog.get_value(fieldname)) || 0;
+			let next = cur + delta;
+			if (typeof min_value === 'number') next = Math.max(min_value, next);
+			dialog.set_value(fieldname, next);
+		}
+		$stepper.find('.posa-step-up').on('click', function () { apply(step); });
+		$stepper.find('.posa-step-down').on('click', function () { apply(-step); });
+	}
+
 	function refresh_barcode_choice_options(dialog) {
 		const options = current_barcodes.map((b) => `${b.barcode} (${__('مسجَّل')})`);
 		options.push(`${POSA_MANUAL_ENTRY} ${__('— أدخل باركود جديد يدويًا')}`);
@@ -317,4 +342,9 @@ function posa_show_barcode_print_dialog(frm) {
 
 	render_items_preview(dialog);
 	dialog.show();
+
+	add_number_stepper(dialog, 'qty', 1, 1);
+	add_number_stepper(dialog, 'custom_width', 1, 10);
+	add_number_stepper(dialog, 'custom_height', 1, 10);
+	add_number_stepper(dialog, 'barcode_height_mm', 1, 4);
 }
