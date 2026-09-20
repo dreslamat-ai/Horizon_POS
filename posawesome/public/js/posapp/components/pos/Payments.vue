@@ -1458,6 +1458,28 @@ export default {
   },
 
   mounted: function () {
+    // كبت رسالتين إنجليزيتين من ERPNext الأساسي (أمر مالك صريح، ٢٠
+    // سبتمبر ٢٠٢٦): "Payment methods refreshed..." من
+    // update_multi_mode_option (سببها الحقيقي: posawesome ما بيضبطش
+    // is_created_using_pos، وتعديل الفلاج ده خطر — بيفعّل شروط تانية
+    // في core مصمَّمة لـPOS الرسمي لا posawesome) و"Item Price added
+    // for..." من get_item_details. كل رسائل السيرفر (_server_messages)
+    // بتتحول لـfrappe.msgprint واحدة (request.js) فاعتراضها هنا كافٍ،
+    // بلا لمس core المشترك بين كل عملاء SaaS.
+    if (!window.__posa_msgprint_filtered) {
+      window.__posa_msgprint_filtered = true;
+      const _origMsgprint = frappe.msgprint;
+      const suppressPatterns = ["Payment methods refreshed", "Item Price added for"];
+      frappe.msgprint = function (msgs) {
+        const list = Array.isArray(msgs) ? msgs : [msgs];
+        const filtered = list.filter(function (m) {
+          const text = typeof m === "string" ? m : (m && m.message) || "";
+          return !suppressPatterns.some((p) => text.includes(p));
+        });
+        if (filtered.length === 0) return;
+        return _origMsgprint.apply(this, [Array.isArray(msgs) ? filtered : filtered[0]]);
+      };
+    }
     this.$nextTick(function () {
       evntBus.$on("send_invoice_doc_payment", (invoice_doc) => {
         this.invoice_doc = invoice_doc;
