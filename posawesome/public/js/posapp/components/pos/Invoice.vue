@@ -77,7 +77,7 @@
             @change="update_delivery_charges()"
           >
             <template v-slot:item="data">
-                              <v-list-item-content>
+                              <v-list-item-content v-bind="data.props">
                   <v-list-item-title
                     class="primary--text subtitle-1"
                     v-html="data.item.name"
@@ -567,7 +567,7 @@
                       @change="set_batch_qty(item, $event)"
                     >
                       <template v-slot:item="data">
-                                                  <v-list-item-content>
+                                                  <v-list-item-content v-bind="data.props">
                             <v-list-item-title
                               v-html="data.item.raw.batch_no"
                             ></v-list-item-title>

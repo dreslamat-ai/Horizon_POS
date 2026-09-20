@@ -34,7 +34,7 @@
       @update:search="onCustomerSearchUpdate"
     >
       <template v-slot:item="data">
-                  <v-list-item-content>
+                  <v-list-item-content v-bind="data.props">
             <v-list-item-title
               class="primary--text subtitle-1"
               v-html="data.item.raw.customer_name"

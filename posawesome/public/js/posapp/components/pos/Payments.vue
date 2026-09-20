@@ -364,7 +364,7 @@
               @click:append="new_address"
             >
               <template v-slot:item="data">
-                                  <v-list-item-content>
+                                  <v-list-item-content v-bind="data.props">
                     <v-list-item-title
                       class="primary--text subtitle-1"
                       v-html="data.item.raw.address_title"
@@ -604,7 +604,7 @@
               :disabled="readonly"
             >
               <template v-slot:item="data">
-                                  <v-list-item-content>
+                                  <v-list-item-content v-bind="data.props">
                     <v-list-item-title
                       class="primary--text subtitle-1"
                       v-html="data.item.raw.sales_person_name"
@@ -1396,7 +1396,7 @@ export default {
       return this.flt(this.paid_change - change, this.currency_precision);
     },
     diff_lable() {
-      let lable = this.diff_payment < 0 ? "Change" : "To Be Paid";
+      let lable = this.diff_payment < 0 ? __("الباقي") : __("المطلوب دفعه");
       return lable;
     },
     available_pioints_amount() {
