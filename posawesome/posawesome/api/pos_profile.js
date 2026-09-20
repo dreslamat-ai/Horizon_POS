@@ -48,7 +48,6 @@ function posa_connect_qz() {
 	return qz.websocket.connect();
 }
 
-const POSA_MANUAL_ENTRY = '__manual__';
 
 function posa_show_barcode_print_dialog(frm) {
 	const presets = {
@@ -76,19 +75,27 @@ function posa_show_barcode_print_dialog(frm) {
 
 	// أسهم زيادة/تقليل مخصَّصة لكل حقل رقمي — أسهم input[type=number]
 	// الافتراضية مش ظاهرة في هذا الفورم (bootstrap.css بيضيّقها بلا
-	// إخفائها فعليًا لكن بلا وضوح كافٍ)، بطلب صريح من المالك.
+	// إخفائها فعليًا لكن بلا وضوح كافٍ)، بطلب صريح من المالك. الأزرار
+	// جوّه نفس صندوق الحقل تمامًا (حدود واحدة مشتركة) لا عائمة فوقه —
+	// تصحيح بعد ملاحظة "الشكل غير متناسق" على النسخة الأولى العائمة.
 	function add_number_stepper(dialog, fieldname, step, min_value) {
 		const field = dialog.fields_dict[fieldname];
 		if (!field || !field.$input) return;
 		const $input = field.$input;
-		$input.css({ 'padding-left': '22px' });
+		const $wrap = $(
+			'<div class="posa-number-wrap" style="display:flex;align-items:stretch;' +
+			'border:1px solid var(--gray-400,#d1d8dd);border-radius:6px;overflow:hidden;background:#fff;"></div>'
+		);
+		$input.css({ border: 'none', 'box-shadow': 'none', 'border-radius': '0', flex: '1 1 auto', margin: 0 });
+		$input.before($wrap);
+		$wrap.append($input);
 		const $stepper = $(
-			'<div class="posa-stepper" style="position:absolute;left:1px;top:0;bottom:0;display:flex;flex-direction:column;width:20px;">' +
-				'<button type="button" class="posa-step-up" style="flex:1;border:none;background:#f0f0f0;cursor:pointer;font-size:9px;line-height:1;">&#9650;</button>' +
-				'<button type="button" class="posa-step-down" style="flex:1;border:none;background:#f0f0f0;cursor:pointer;font-size:9px;line-height:1;border-top:1px solid #ddd;">&#9660;</button>' +
+			'<div style="display:flex;flex-direction:column;width:20px;border-right:1px solid var(--gray-400,#d1d8dd);">' +
+				'<button type="button" class="posa-step-up" style="flex:1;border:none;background:#f8f8f8;cursor:pointer;font-size:8px;line-height:1;">&#9650;</button>' +
+				'<button type="button" class="posa-step-down" style="flex:1;border:none;background:#f8f8f8;cursor:pointer;font-size:8px;line-height:1;border-top:1px solid var(--gray-400,#d1d8dd);">&#9660;</button>' +
 			'</div>'
 		);
-		$input.parent().css('position', 'relative').append($stepper);
+		$wrap.append($stepper);
 		function apply(delta) {
 			const cur = parseFloat(dialog.get_value(fieldname)) || 0;
 			let next = cur + delta;
@@ -99,12 +106,19 @@ function posa_show_barcode_print_dialog(frm) {
 		$stepper.find('.posa-step-down').on('click', function () { apply(-step); });
 	}
 
+	// dialog.set_value async فعليًا (بيرجع Promise) — استدعاء refresh_preview
+	// فورًا بعده بلا انتظار كان بيقرا قيمة barcode_choice القديمة، فالمعاينة
+	// كانت بتفضل واقفة على الصنف الأول. لازم نرجّع الـPromise هنا صراحةً.
 	function refresh_barcode_choice_options(dialog) {
-		const options = current_barcodes.map((b) => `${b.barcode} (${__('مسجَّل')})`);
-		options.push(`${POSA_MANUAL_ENTRY} ${__('— أدخل باركود جديد يدويًا')}`);
+		if (!current_barcodes.length) {
+			dialog.fields_dict.barcode_choice.df.options = __('لا يوجد باركود مسجَّل — افتح الصنف واضغط "توليد باركود" أولًا');
+			dialog.fields_dict.barcode_choice.refresh();
+			return dialog.set_value('barcode_choice', '');
+		}
+		const options = current_barcodes.map((b) => `${b.barcode}\u2001(${__('مسجَّل')})`);
 		dialog.fields_dict.barcode_choice.df.options = options.join('\n');
 		dialog.fields_dict.barcode_choice.refresh();
-		dialog.set_value('barcode_choice', options[0]);
+		return dialog.set_value('barcode_choice', options[0]);
 	}
 
 	function on_item_selected(dialog) {
@@ -118,15 +132,15 @@ function posa_show_barcode_print_dialog(frm) {
 			args: { item_code },
 			callback: function (r) {
 				current_barcodes = r.message || [];
-				refresh_barcode_choice_options(dialog);
-				refresh_preview(dialog);
+				Promise.resolve(refresh_barcode_choice_options(dialog)).then(function () {
+					refresh_preview(dialog);
+				});
 			},
 		});
 	}
 
 	function on_barcode_choice_change(dialog) {
 		const choice = (dialog.get_value('barcode_choice') || '').split(' ')[0];
-		dialog.set_df_property('manual_barcode', 'hidden', choice !== POSA_MANUAL_ENTRY);
 		refresh_preview(dialog);
 	}
 
@@ -135,18 +149,6 @@ function posa_show_barcode_print_dialog(frm) {
 	function resolve_selected_barcode(dialog) {
 		const item_code = dialog.get_value('item_code');
 		const choice = (dialog.get_value('barcode_choice') || '').split(' ')[0];
-		if (choice === POSA_MANUAL_ENTRY) {
-			const value = (dialog.get_value('manual_barcode') || '').trim();
-			if (!value) return Promise.reject(__('اكتب قيمة الباركود اليدوي'));
-			return new Promise(function (resolve, reject) {
-				frappe.call({
-					method: 'posawesome.posawesome.api.barcode_print.add_item_barcode',
-					args: { item_code, barcode_value: value },
-					callback: function (r) { resolve(r.message.barcode); },
-					error: reject,
-				});
-			});
-		}
 		return Promise.resolve(choice);
 	}
 
@@ -154,9 +156,6 @@ function posa_show_barcode_print_dialog(frm) {
 	// resolve_selected_barcode التي تُستدعى فقط عند "أضف للقائمة".
 	function get_preview_barcode_value(dialog) {
 		const choice = (dialog.get_value('barcode_choice') || '').split('\u2001')[0];
-		if (choice === POSA_MANUAL_ENTRY) {
-			return (dialog.get_value('manual_barcode') || '').trim();
-		}
 		return choice;
 	}
 
@@ -211,11 +210,7 @@ function posa_show_barcode_print_dialog(frm) {
 				fieldtype: 'Select', fieldname: 'barcode_choice', label: __('الباركود'),
 				onchange: function () { on_barcode_choice_change(dialog); },
 			},
-			{
-				fieldtype: 'Data', fieldname: 'manual_barcode', label: __('الباركود اليدوي (رقم أو حروف)'), hidden: 1,
-				onchange: function () { refresh_preview(dialog); },
-			},
-			{ fieldtype: 'Column Break' },
+						{ fieldtype: 'Column Break' },
 			{ fieldtype: 'Int', fieldname: 'qty', label: __('الكمية'), default: 1 },
 			{
 				fieldtype: 'Button', fieldname: 'add_item', label: __('+ أضف للقائمة'),
@@ -230,7 +225,6 @@ function posa_show_barcode_print_dialog(frm) {
 						items_list.push({ item_code, qty, barcode_value });
 						render_items_preview(dialog);
 						dialog.set_value('item_code', '');
-						dialog.set_value('manual_barcode', '');
 					}).catch(function (err) {
 						frappe.msgprint(typeof err === 'string' ? err : __('تعذّر تحديد الباركود'));
 					});
