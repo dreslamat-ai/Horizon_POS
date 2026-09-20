@@ -1,20 +1,27 @@
 // Copyright (c) 20201 Youssef Restom and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on('POS Profile', {
-	setup: function (frm) {
-		frm.set_query("posa_cash_mode_of_payment", function (doc) {
-			return {
-				filters: { 'type': 'Cash' }
-			};
-		});
-	},
-	refresh: function (frm) {
-		frm.add_custom_button(__('طباعة باركود الأصناف'), function () {
-			posa_show_barcode_print_dialog(frm);
-		}, __('أدوات'));
-	},
-});
+// حارس ضد التسجيل المزدوج — هذا الملف يُضمَّن أيضًا (include) في صفحة
+// "طباعة الباركود" المستقلة (page/print_barcode) لإعادة استخدام
+// posa_show_barcode_print_dialog بلا تكرار كود، وبدونه كان الزرار
+// هيتسجّل مرتين في فورم POS Profile نفسه لو الصفحتان اتفتحا بنفس الجلسة.
+if (!window.__posa_pos_profile_hook_registered) {
+	window.__posa_pos_profile_hook_registered = true;
+	frappe.ui.form.on('POS Profile', {
+		setup: function (frm) {
+			frm.set_query("posa_cash_mode_of_payment", function (doc) {
+				return {
+					filters: { 'type': 'Cash' }
+				};
+			});
+		},
+		refresh: function (frm) {
+			frm.add_custom_button(__('طباعة باركود الأصناف'), function () {
+				posa_show_barcode_print_dialog(frm);
+			}, __('أدوات'));
+		},
+	});
+}
 
 // اتصال QZ Tray بنفس منطق Payments.vue بالضبط — شهادة وتوقيع من
 // السيرفر (posawesome.posawesome.api.qz_signing)، مش من عرض جهة
@@ -71,6 +78,17 @@ function posa_show_barcode_print_dialog(frm) {
 	// يفشل ينسّق مع بعض مقاسات الملصقات الحقيقية.
 	function get_barcode_height_mm(dialog) {
 		return dialog.get_value('barcode_height_mm') || 16;
+	}
+
+	function get_font_args(dialog) {
+		return {
+			name_font_mm: dialog.get_value('name_font_mm') || 2.4,
+			name_bold: dialog.get_value('name_bold') ? 1 : 0,
+			company_font_mm: dialog.get_value('company_font_mm') || 2.0,
+			company_bold: dialog.get_value('company_bold') ? 1 : 0,
+			price_font_mm: dialog.get_value('price_font_mm') || 2.6,
+			price_bold: dialog.get_value('price_bold') ? 1 : 0,
+		};
 	}
 
 	// أسهم زيادة/تقليل مخصَّصة لكل حقل رقمي — أسهم input[type=number]
@@ -176,6 +194,7 @@ function posa_show_barcode_print_dialog(frm) {
 				company_name: frm.doc.company,
 				price_list: frm.doc.selling_price_list,
 				barcode_height_mm: get_barcode_height_mm(dialog),
+				...get_font_args(dialog),
 			},
 			callback: function (r) {
 				dialog.fields_dict.barcode_preview.$wrapper.html(r.message);
@@ -183,18 +202,38 @@ function posa_show_barcode_print_dialog(frm) {
 		});
 	}
 
+	// جدول حقيقي بطلب صريح من المالك (زي جدول أصناف الفاتورة) — الكمية
+	// تُعدَّل مباشرة من الجدول بلا حذف وإعادة إضافة الصنف من الأول.
 	function render_items_preview(dialog) {
-		const rows = items_list.map((r, i) =>
-			`<div class="posa-barcode-row" style="display:flex;justify-content:space-between;padding:2px 0">
-				<span>${frappe.utils.escape_html(r.item_code)} — ${frappe.utils.escape_html(r.barcode_value)} × ${r.qty}</span>
-				<a href="#" data-idx="${i}" class="posa-remove-item">${__('حذف')}</a>
-			</div>`
-		).join('') || `<div class="text-muted">${__('لا توجد أصناف بعد')}</div>`;
-		dialog.fields_dict.items_preview.$wrapper.html(rows);
+		if (!items_list.length) {
+			dialog.fields_dict.items_preview.$wrapper.html(`<div class="text-muted">${__('لا توجد أصناف بعد')}</div>`);
+			return;
+		}
+		const rows = items_list.map((r, i) => `
+			<tr>
+				<td>${frappe.utils.escape_html(r.item_code)}</td>
+				<td style="direction:ltr;text-align:left">${frappe.utils.escape_html(r.barcode_value)}</td>
+				<td><input type="number" min="1" class="posa-qty-input form-control input-sm" data-idx="${i}" value="${r.qty}" style="width:70px"></td>
+				<td><a href="#" data-idx="${i}" class="posa-remove-item">${__('حذف')}</a></td>
+			</tr>`
+		).join('');
+		dialog.fields_dict.items_preview.$wrapper.html(`
+			<table class="table table-bordered" style="margin:0">
+				<thead><tr>
+					<th>${__('الصنف')}</th><th>${__('الباركود')}</th><th>${__('الكمية')}</th><th></th>
+				</tr></thead>
+				<tbody>${rows}</tbody>
+			</table>
+		`);
 		dialog.fields_dict.items_preview.$wrapper.find('.posa-remove-item').on('click', function (e) {
 			e.preventDefault();
 			items_list.splice($(this).data('idx'), 1);
 			render_items_preview(dialog);
+		});
+		dialog.fields_dict.items_preview.$wrapper.find('.posa-qty-input').on('change', function () {
+			const idx = $(this).data('idx');
+			const val = parseInt($(this).val(), 10);
+			items_list[idx].qty = val > 0 ? val : 1;
 		});
 	}
 
@@ -263,11 +302,44 @@ function posa_show_barcode_print_dialog(frm) {
 				fieldtype: 'Check', fieldname: 'show_company', label: __('اطبع اسم الشركة على الملصق'),
 				onchange: function () { refresh_preview(dialog); },
 			},
+			{ fieldtype: 'Column Break' },
+			{
+				fieldtype: 'Data', fieldname: 'printer_name', label: __('اسم طابعة الملصقات (QZ Tray)'),
+				default: frm.doc.posa_barcode_printer_name || '',
+				description: __('تقدر تغيّره هنا وقت الطباعة بلا ما تحفظه في هذا الفورم'),
+			},
+			{ fieldtype: 'Section Break', label: __('حجم ووزن خط كل سطر') },
+			{
+				fieldtype: 'Float', fieldname: 'name_font_mm', label: __('حجم اسم الصنف (مم)'), default: 2.4,
+				onchange: function () { refresh_preview(dialog); },
+			},
+			{
+				fieldtype: 'Check', fieldname: 'name_bold', label: __('اسم الصنف عريض'),
+				onchange: function () { refresh_preview(dialog); },
+			},
+			{ fieldtype: 'Column Break' },
+			{
+				fieldtype: 'Float', fieldname: 'company_font_mm', label: __('حجم اسم الشركة (مم)'), default: 2.0,
+				onchange: function () { refresh_preview(dialog); },
+			},
+			{
+				fieldtype: 'Check', fieldname: 'company_bold', label: __('اسم الشركة عريض'),
+				onchange: function () { refresh_preview(dialog); },
+			},
+			{ fieldtype: 'Column Break' },
+			{
+				fieldtype: 'Float', fieldname: 'price_font_mm', label: __('حجم السعر (مم)'), default: 2.6,
+				onchange: function () { refresh_preview(dialog); },
+			},
+			{
+				fieldtype: 'Check', fieldname: 'price_bold', label: __('السعر عريض'), default: 1,
+				onchange: function () { refresh_preview(dialog); },
+			},
 			{ fieldtype: 'Section Break' },
 			{ fieldtype: 'HTML', fieldname: 'barcode_preview', label: __('معاينة الملصق') },
 			{ fieldtype: 'Section Break' },
 			{
-				fieldtype: 'Button', fieldname: 'print_a4', label: __('طباعة A4 (صفحة عادية، بلا QZ Tray)'),
+				fieldtype: 'Button', fieldname: 'print_a4', label: __('طباعة A4 (صفحة عادية)'),
 				click: function () {
 					if (!items_list.length) {
 						frappe.msgprint(__('أضف صنفًا واحدًا على الأقل'));
@@ -283,6 +355,7 @@ function posa_show_barcode_print_dialog(frm) {
 							company_name: frm.doc.company,
 							price_list: frm.doc.selling_price_list,
 							barcode_height_mm: get_barcode_height_mm(dialog),
+							...get_font_args(dialog),
 						},
 						callback: function (r) {
 							const win = window.open('', '_blank');
@@ -292,50 +365,62 @@ function posa_show_barcode_print_dialog(frm) {
 					});
 				},
 			},
+			{ fieldtype: 'Column Break' },
+			{
+				fieldtype: 'Button', fieldname: 'print_qz', label: __('طباعة على طابعة الملصقات (QZ Tray)'),
+				click: function () {
+					if (!items_list.length) {
+						frappe.msgprint(__('أضف صنفًا واحدًا على الأقل'));
+						return;
+					}
+					const printer_name = dialog.get_value('printer_name');
+					if (!printer_name) {
+						frappe.msgprint(__('اكتب اسم طابعة الملصقات فوق أولًا'));
+						return;
+					}
+					const [w, h] = get_label_size(dialog);
+					posa_connect_qz().then(function () {
+						frappe.call({
+							method: 'posawesome.posawesome.api.barcode_print.get_barcode_zpl',
+							args: {
+								items: items_list, label_width_mm: w, label_height_mm: h,
+								show_price: dialog.get_value('show_price') ? 1 : 0,
+								show_company: dialog.get_value('show_company') ? 1 : 0,
+								company_name: frm.doc.company,
+								price_list: frm.doc.selling_price_list,
+								barcode_height_mm: get_barcode_height_mm(dialog),
+								...get_font_args(dialog),
+							},
+							callback: function (r) {
+								const config = qz.configs.create(printer_name);
+								qz.print(config, [{ type: 'raw', format: 'plain', data: r.message.zpl }])
+									.then(function () {
+										frappe.show_alert({ message: __('اترسلت للطباعة'), indicator: 'green' });
+										dialog.hide();
+									})
+									.catch(function (err) {
+										frappe.msgprint(__('فشلت الطباعة: {0}', [String(err)]));
+									});
+							},
+						});
+					}).catch(function () {
+						frappe.msgprint(__('تعذّر الاتصال بخدمة QZ Tray — تأكّد من تثبيتها وتشغيلها على هذا الجهاز'));
+					});
+				},
+			},
 		],
-		primary_action_label: __('طباعة على طابعة الملصقات (QZ Tray)'),
-		primary_action: function () {
-			if (!items_list.length) {
-				frappe.msgprint(__('أضف صنفًا واحدًا على الأقل'));
-				return;
-			}
-			const printer_name = frm.doc.posa_barcode_printer_name;
-			if (!printer_name) {
-				frappe.msgprint(__('حدّد اسم طابعة الملصقات في هذا الفورم أولًا واحفظه'));
-				return;
-			}
-			const [w, h] = get_label_size(dialog);
-			posa_connect_qz().then(function () {
-				frappe.call({
-					method: 'posawesome.posawesome.api.barcode_print.get_barcode_zpl',
-					args: {
-						items: items_list, label_width_mm: w, label_height_mm: h,
-						show_price: dialog.get_value('show_price') ? 1 : 0,
-						show_company: dialog.get_value('show_company') ? 1 : 0,
-						company_name: frm.doc.company,
-						price_list: frm.doc.selling_price_list,
-						barcode_height_mm: get_barcode_height_mm(dialog),
-					},
-					callback: function (r) {
-						const config = qz.configs.create(printer_name);
-						qz.print(config, [{ type: 'raw', format: 'plain', data: r.message.zpl }])
-							.then(function () {
-								frappe.show_alert({ message: __('اترسلت للطباعة'), indicator: 'green' });
-								dialog.hide();
-							})
-							.catch(function (err) {
-								frappe.msgprint(__('فشلت الطباعة: {0}', [String(err)]));
-							});
-					},
-				});
-			}).catch(function () {
-				frappe.msgprint(__('تعذّر الاتصال بخدمة QZ Tray — تأكّد من تثبيتها وتشغيلها على هذا الجهاز'));
-			});
-		},
 	});
 
 	render_items_preview(dialog);
 	dialog.show();
+
+	// نفس شكل ولون الزرّين — فرابي بيميّز آخر زرّ Button تلقائيًا لو
+	// مافيش primary_action محدَّد، فيطلع مختلف عن جاره بلا سبب تصميمي.
+	['print_a4', 'print_qz'].forEach(function (fname) {
+		dialog.fields_dict[fname].$input
+			.removeClass('btn-primary btn-default')
+			.addClass('btn-primary');
+	});
 
 	add_number_stepper(dialog, 'qty', 1, 1);
 	add_number_stepper(dialog, 'custom_width', 1, 10);

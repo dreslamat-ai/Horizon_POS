@@ -259,12 +259,15 @@ def get_barcode_preview_html(
 	item_code, barcode_value, label_width_mm=50, label_height_mm=30,
 	show_price=0, show_company=0, company_name=None, price_list=None,
 	barcode_height_mm=None,
+	name_font_mm=2.4, name_bold=0, company_font_mm=2.0, company_bold=0,
+	price_font_mm=2.6, price_bold=1,
 ):
 	"""معاينة حيّة لملصق واحد — تتحدّث في ديالوج الطباعة مع كل تغيير
-	(صنف، باركود مختار، مقاس، خيار سعر/شركة، ارتفاع الباركود) بلا
-	حاجة لفتح نافذة طباعة فعلية. أسماء الأصناف مقصورة على
-	posa-preview- عمدًا حتى لا تتعارض مع أي كلاس بنفس الاسم في صفحة
-	POS Profile نفسها. barcode_height_mm فاضي = حساب تلقائي قديم."""
+	(صنف، باركود مختار، مقاس، خيار سعر/شركة، ارتفاع الباركود، حجم
+	ووزن خط كل سطر) بلا حاجة لفتح نافذة طباعة فعلية. أسماء الأصناف
+	مقصورة على posa-preview- عمدًا حتى لا تتعارض مع أي كلاس بنفس
+	الاسم في صفحة POS Profile نفسها. barcode_height_mm فاضي = حساب
+	تلقائي قديم."""
 	item_name, standard_rate = frappe.db.get_value(
 		"Item", item_code, ["item_name", "standard_rate"]
 	) or (item_code, 0)
@@ -273,6 +276,9 @@ def get_barcode_preview_html(
 	show_price = int(show_price)
 	show_company = int(show_company)
 	company_name_safe = frappe.utils.escape_html((company_name or "")[:40])
+	name_weight = "bold" if int(name_bold) else "normal"
+	company_weight = "bold" if int(company_bold) else "normal"
+	price_weight = "bold" if int(price_bold) else "normal"
 
 	label_width_mm = float(label_width_mm)
 	label_height_mm = float(label_height_mm)
@@ -296,11 +302,11 @@ def get_barcode_preview_html(
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     overflow: hidden; padding: 1mm; font-family: sans-serif;
   }}
-  .posa-preview-name {{ font-size: 2.4mm; text-align: center; direction: rtl; }}
+  .posa-preview-name {{ font-size: {flt(name_font_mm)}mm; font-weight: {name_weight}; text-align: center; direction: rtl; }}
   .posa-preview-barcode svg {{ max-width: 100%; }}
   .posa-preview-code {{ font-size: 2mm; letter-spacing: 0.3mm; }}
-  .posa-preview-company {{ font-size: 2mm; text-align: center; direction: rtl; opacity: .8; }}
-  .posa-preview-price {{ font-size: 2.6mm; font-weight: bold; margin-top: 0.5mm; }}
+  .posa-preview-company {{ font-size: {flt(company_font_mm)}mm; font-weight: {company_weight}; text-align: center; direction: rtl; opacity: .8; }}
+  .posa-preview-price {{ font-size: {flt(price_font_mm)}mm; font-weight: {price_weight}; margin-top: 0.5mm; }}
 </style>
 <div class="posa-preview-wrap">
   <div class="posa-preview-cell">
@@ -324,10 +330,14 @@ def get_barcode_zpl(
 	items, label_width_mm=50, label_height_mm=30, dpi=203,
 	show_price=0, show_company=0, company_name=None, price_list=None,
 	barcode_height_mm=None,
+	name_font_mm=2.4, name_bold=0, company_font_mm=2.0, company_bold=0,
+	price_font_mm=2.6, price_bold=1,
 ):
 	"""يولّد نص ZPL خام لقائمة أصناف — نسخة واحدة لكل قيمة qty.
 	السعر واسم الشركة اختياريان بطلب صريح من المالك (٢٠ سبتمبر ٢٠٢٦) —
-	المستخدم يقرر وقت الطباعة لا افتراضًا ثابتًا."""
+	المستخدم يقرر وقت الطباعة لا افتراضًا ثابتًا. حجم الخط بالمم لكل
+	سطر (اسم/شركة/سعر) يُحوَّل لنقاط حسب dpi الطابعة — والعريض في ZPL
+	تقريبي (عرض الحرف = ارتفاعه × ١٫٣ بدل التساوي، لا bold حقيقي)."""
 	parsed = _parse_items(items, price_list=price_list)
 	if not parsed:
 		frappe.throw(_("لا يوجد صنف صالح للطباعة"))
@@ -343,6 +353,15 @@ def get_barcode_zpl(
 		round(flt(barcode_height_mm) / 25.4 * dpi) if flt(barcode_height_mm) else max(30, height_dots - 70)
 	)
 
+	def _font_dots(font_mm, bold):
+		h = max(6, round(flt(font_mm) / 25.4 * dpi))
+		w = round(h * 1.3) if int(bold) else h
+		return h, w
+
+	name_h, name_w = _font_dots(name_font_mm, name_bold)
+	company_h, company_w = _font_dots(company_font_mm, company_bold)
+	price_h, price_w = _font_dots(price_font_mm, price_bold)
+
 	labels = []
 	for row in parsed:
 		# ^BY يضبط عرض الشرطة الواحدة، ^BCN باركود Code128 اتجاه عادي.
@@ -350,16 +369,16 @@ def get_barcode_zpl(
 		extra_lines = ""
 		y = 36 + barcode_height_dots + 14
 		if show_company and company_name:
-			extra_lines += f"^FO16,{y}^A0N,16,16^FD{company_name}^FS"
-			y += 20
+			extra_lines += f"^FO16,{y}^A0N,{company_h},{company_w}^FD{company_name}^FS"
+			y += company_h + 4
 		if show_price:
 			price_line = f"{row['rate']:.2f}".replace("^", "").replace("~", "")
-			extra_lines += f"^FO16,{y}^A0N,18,18^FD{price_line}^FS"
+			extra_lines += f"^FO16,{y}^A0N,{price_h},{price_w}^FD{price_line}^FS"
 		label_zpl = (
 			"^XA"
 			f"^PW{width_dots}"
 			f"^LL{height_dots}"
-			f"^FO16,10^A0N,20,20^FD{name_line}^FS"
+			f"^FO16,10^A0N,{name_h},{name_w}^FD{name_line}^FS"
 			f"^FO16,36^BY2^BCN,{barcode_height_dots},N,N,N^FD{row['barcode_value']}^FS"
 			f"{extra_lines}"
 			"^XZ"
@@ -374,10 +393,16 @@ def get_barcode_a4_html(
 	items, label_width_mm=50, label_height_mm=30,
 	show_price=0, show_company=0, company_name=None, price_list=None,
 	barcode_height_mm=None,
+	name_font_mm=2.4, name_bold=0, company_font_mm=2.0, company_bold=0,
+	price_font_mm=2.6, price_bold=1,
 ):
 	"""يولّد صفحة HTML قائمة بذاتها — شبكة باركودات بحجم A4، جاهزة
 	للطباعة المباشرة من نافذة متصفح جديدة (window.print()). السعر
-	واسم الشركة اختياريان بطلب صريح من المالك (٢٠ سبتمبر ٢٠٢٦)."""
+	واسم الشركة اختياريان بطلب صريح من المالك (٢٠ سبتمبر ٢٠٢٦)، وحجم
+	ووزن خط كل سطر قابلان للتحكم بنفس المنطق."""
+	name_weight = "bold" if int(name_bold) else "normal"
+	company_weight = "bold" if int(company_bold) else "normal"
+	price_weight = "bold" if int(price_bold) else "normal"
 	parsed = _parse_items(items, price_list=price_list)
 	if not parsed:
 		frappe.throw(_("لا يوجد صنف صالح للطباعة"))
@@ -435,11 +460,11 @@ def get_barcode_a4_html(
     padding: 1mm;
     page-break-inside: avoid;
   }}
-  .label-name {{ font-size: 2.4mm; text-align: center; direction: rtl; }}
+  .label-name {{ font-size: {flt(name_font_mm)}mm; font-weight: {name_weight}; text-align: center; direction: rtl; }}
   .label-barcode svg {{ max-width: 100%; }}
   .label-code {{ font-size: 2mm; letter-spacing: 0.3mm; }}
-  .label-company {{ font-size: 2mm; text-align: center; direction: rtl; opacity: .8; }}
-  .label-price {{ font-size: 2.6mm; font-weight: bold; margin-top: 0.5mm; }}
+  .label-company {{ font-size: {flt(company_font_mm)}mm; font-weight: {company_weight}; text-align: center; direction: rtl; opacity: .8; }}
+  .label-price {{ font-size: {flt(price_font_mm)}mm; font-weight: {price_weight}; margin-top: 0.5mm; }}
   @media print {{
     .no-print {{ display: none; }}
   }}
