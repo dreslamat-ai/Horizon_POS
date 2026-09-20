@@ -255,6 +255,64 @@ def _parse_items(items, price_list=None):
 
 
 @frappe.whitelist()
+def get_barcode_preview_html(
+	item_code, barcode_value, label_width_mm=50, label_height_mm=30,
+	show_price=0, show_company=0, company_name=None, price_list=None,
+):
+	"""معاينة حيّة لملصق واحد — تتحدّث في ديالوج الطباعة مع كل تغيير
+	(صنف، باركود مختار، مقاس، خيار سعر/شركة) بلا حاجة لفتح نافذة
+	طباعة فعلية. أسماء الأصناف مقصورة على posa-preview- عمدًا حتى لا
+	تتعارض مع أي كلاس بنفس الاسم في صفحة POS Profile نفسها."""
+	item_name, standard_rate = frappe.db.get_value(
+		"Item", item_code, ["item_name", "standard_rate"]
+	) or (item_code, 0)
+	rate = _resolve_item_rate(item_code, price_list, standard_rate)
+
+	show_price = int(show_price)
+	show_company = int(show_company)
+	company_name_safe = frappe.utils.escape_html((company_name or "")[:40])
+
+	label_width_mm = float(label_width_mm)
+	label_height_mm = float(label_height_mm)
+	svg = _barcode_svg(barcode_value, module_height_mm=max(6, label_height_mm - 14))
+	name_line = frappe.utils.escape_html((item_name or item_code)[:32])
+
+	company_html = (
+		f'<div class="posa-preview-company">{company_name_safe}</div>'
+		if show_company and company_name_safe
+		else ""
+	)
+	price_html = f'<div class="posa-preview-price">{rate:.2f}</div>' if show_price else ""
+
+	return f"""
+<style>
+  .posa-preview-wrap {{ display: flex; justify-content: center; padding: 8px 0; }}
+  .posa-preview-cell {{
+    box-sizing: border-box;
+    border: 1px dashed #999;
+    width: {label_width_mm}mm; height: {label_height_mm}mm;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    overflow: hidden; padding: 1mm; font-family: sans-serif;
+  }}
+  .posa-preview-name {{ font-size: 2.4mm; text-align: center; direction: rtl; }}
+  .posa-preview-barcode svg {{ max-width: 100%; }}
+  .posa-preview-code {{ font-size: 2mm; letter-spacing: 0.3mm; }}
+  .posa-preview-company {{ font-size: 2mm; text-align: center; direction: rtl; opacity: .8; }}
+  .posa-preview-price {{ font-size: 2.6mm; font-weight: bold; margin-top: 0.5mm; }}
+</style>
+<div class="posa-preview-wrap">
+  <div class="posa-preview-cell">
+    {company_html}
+    <div class="posa-preview-name">{name_line}</div>
+    <div class="posa-preview-barcode">{svg}</div>
+    <div class="posa-preview-code">{barcode_value}</div>
+    {price_html}
+  </div>
+</div>
+"""
+
+
+@frappe.whitelist()
 def get_label_presets():
 	return {"presets": LABEL_PRESETS_MM}
 

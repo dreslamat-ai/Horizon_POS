@@ -78,13 +78,17 @@ function posa_show_barcode_print_dialog(frm) {
 
 	function on_item_selected(dialog) {
 		const item_code = dialog.get_value('item_code');
-		if (!item_code) return;
+		if (!item_code) {
+			refresh_preview(dialog);
+			return;
+		}
 		frappe.call({
 			method: 'posawesome.posawesome.api.barcode_print.get_item_barcodes',
 			args: { item_code },
 			callback: function (r) {
 				current_barcodes = r.message || [];
 				refresh_barcode_choice_options(dialog);
+				refresh_preview(dialog);
 			},
 		});
 	}
@@ -92,6 +96,7 @@ function posa_show_barcode_print_dialog(frm) {
 	function on_barcode_choice_change(dialog) {
 		const choice = (dialog.get_value('barcode_choice') || '').split(' ')[0];
 		dialog.set_df_property('manual_barcode', 'hidden', choice !== POSA_MANUAL_ENTRY);
+		refresh_preview(dialog);
 	}
 
 	// يرجّع Promise تتحلّ لقيمة الباركود النهائية — لو يدوي/مولَّد
@@ -112,6 +117,39 @@ function posa_show_barcode_print_dialog(frm) {
 			});
 		}
 		return Promise.resolve(choice);
+	}
+
+	// قيمة الباركود للمعاينة فقط — بلا أي نداء تسجيل على الصنف، بعكس
+	// resolve_selected_barcode التي تُستدعى فقط عند "أضف للقائمة".
+	function get_preview_barcode_value(dialog) {
+		const choice = (dialog.get_value('barcode_choice') || '').split('\u2001')[0];
+		if (choice === POSA_MANUAL_ENTRY) {
+			return (dialog.get_value('manual_barcode') || '').trim();
+		}
+		return choice;
+	}
+
+	function refresh_preview(dialog) {
+		const item_code = dialog.get_value('item_code');
+		const barcode_value = get_preview_barcode_value(dialog);
+		if (!item_code || !barcode_value) {
+			dialog.fields_dict.barcode_preview.$wrapper.html('');
+			return;
+		}
+		const [w, h] = get_label_size(dialog);
+		frappe.call({
+			method: 'posawesome.posawesome.api.barcode_print.get_barcode_preview_html',
+			args: {
+				item_code, barcode_value, label_width_mm: w, label_height_mm: h,
+				show_price: dialog.get_value('show_price') ? 1 : 0,
+				show_company: dialog.get_value('show_company') ? 1 : 0,
+				company_name: frm.doc.company,
+				price_list: frm.doc.selling_price_list,
+			},
+			callback: function (r) {
+				dialog.fields_dict.barcode_preview.$wrapper.html(r.message);
+			},
+		});
 	}
 
 	function render_items_preview(dialog) {
@@ -141,7 +179,10 @@ function posa_show_barcode_print_dialog(frm) {
 				fieldtype: 'Select', fieldname: 'barcode_choice', label: __('الباركود'),
 				onchange: function () { on_barcode_choice_change(dialog); },
 			},
-			{ fieldtype: 'Data', fieldname: 'manual_barcode', label: __('الباركود اليدوي (رقم أو حروف)'), hidden: 1 },
+			{
+				fieldtype: 'Data', fieldname: 'manual_barcode', label: __('الباركود اليدوي (رقم أو حروف)'), hidden: 1,
+				onchange: function () { refresh_preview(dialog); },
+			},
 			{ fieldtype: 'Column Break' },
 			{ fieldtype: 'Int', fieldname: 'qty', label: __('الكمية'), default: 1 },
 			{
@@ -169,19 +210,30 @@ function posa_show_barcode_print_dialog(frm) {
 			{
 				fieldtype: 'Select', fieldname: 'preset', label: __('مقاس الملصق'),
 				options: Object.keys(presets).join('\n'), default: '50×30 مم (شائع للملابس)',
+				onchange: function () { refresh_preview(dialog); },
 			},
 			{ fieldtype: 'Column Break' },
 			{
 				fieldtype: 'Int', fieldname: 'custom_width', label: __('العرض (مم)'), default: 50,
 				depends_on: "eval:doc.preset=='مخصّص'",
+				onchange: function () { refresh_preview(dialog); },
 			},
 			{
 				fieldtype: 'Int', fieldname: 'custom_height', label: __('الارتفاع (مم)'), default: 30,
 				depends_on: "eval:doc.preset=='مخصّص'",
+				onchange: function () { refresh_preview(dialog); },
 			},
 			{ fieldtype: 'Column Break' },
-			{ fieldtype: 'Check', fieldname: 'show_price', label: __('اطبع السعر على الملصق') },
-			{ fieldtype: 'Check', fieldname: 'show_company', label: __('اطبع اسم الشركة على الملصق') },
+			{
+				fieldtype: 'Check', fieldname: 'show_price', label: __('اطبع السعر على الملصق'),
+				onchange: function () { refresh_preview(dialog); },
+			},
+			{
+				fieldtype: 'Check', fieldname: 'show_company', label: __('اطبع اسم الشركة على الملصق'),
+				onchange: function () { refresh_preview(dialog); },
+			},
+			{ fieldtype: 'Section Break' },
+			{ fieldtype: 'HTML', fieldname: 'barcode_preview', label: __('معاينة الملصق') },
 			{ fieldtype: 'Section Break' },
 			{
 				fieldtype: 'Button', fieldname: 'print_a4', label: __('طباعة A4 (صفحة عادية، بلا QZ Tray)'),
