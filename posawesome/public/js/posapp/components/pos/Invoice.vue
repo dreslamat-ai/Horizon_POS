@@ -156,9 +156,10 @@
             :headers="items_headers"
             :items="items"
             :single-expand="singleExpand"
-            :expanded.sync="expanded"
+            v-model:expanded="expanded"
             show-expand
             item-key="posa_row_id"
+            item-value="posa_row_id"
             class="elevation-1"
             :items-per-page="itemsPerPage"
             hide-default-footer
@@ -173,8 +174,8 @@
                 <p>{{ __("السلة فاضية — اضغط على أي صنف من القائمة عشان تضيفه") }}</p>
               </div>
             </template>
-            <template v-slot:item.item_name="{ item }">
-              <div class="cart-line-cell">
+            <template v-slot:item.item_name="{ item, internalItem, toggleExpand }">
+              <div class="cart-line-cell" @click="toggleExpand(internalItem)" style="cursor:pointer">
                 <div class="cart-thumb">
                   <img v-if="item.image" :src="item.image" :alt="item.item_name"
                     style="width:100%;height:100%;object-fit:cover;border-radius:10px;"
@@ -215,8 +216,9 @@
               ></v-simple-checkbox>
             </template>
 
-            <template v-slot:expanded-item="{ headers, item }">
-              <td :colspan="headers.length" class="ma-0 pa-0">
+            <template v-slot:expanded-row="{ columns, item }">
+              <tr>
+              <td :colspan="columns.length" class="ma-0 pa-0">
                 <v-row class="ma-0 pa-0">
                   <v-col cols="1">
                     <v-btn
@@ -660,6 +662,7 @@
                   </v-col>
                 </v-row>
               </td>
+              </tr>
             </template>
           </v-data-table>
       </div>
@@ -1176,7 +1179,7 @@ export default {
         (!this.pos_profile.posa_auto_set_batch && new_item.has_batch_no) ||
         new_item.has_serial_no
       ) {
-        this.expanded.push(new_item);
+        this.expanded.push(new_item.posa_row_id);
       }
       return new_item;
     },
@@ -2031,7 +2034,7 @@ export default {
       if (e.key === "a" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.expanded = [];
-        this.expanded.push(this.items[0]);
+        if (this.items[0]) this.expanded.push(this.items[0].posa_row_id);
       }
     },
 
@@ -2050,12 +2053,14 @@ export default {
       if (isTyping && e.key !== "Escape") {
         return;
       }
-      const active_item = this.expanded[0] || this.items[0];
+      const active_item =
+        this.items.find((i) => i.posa_row_id === this.expanded[0]) ||
+        this.items[0];
       switch (e.key) {
         case "F2":
           e.preventDefault();
           if (active_item) {
-            this.expanded = [active_item];
+            this.expanded = [active_item.posa_row_id];
           }
           break;
         case "F3":
@@ -2700,7 +2705,7 @@ export default {
         (!this.pos_profile.posa_auto_set_batch && new_item.has_batch_no) ||
         new_item.has_serial_no
       ) {
-        this.expanded.push(new_item);
+        this.expanded.push(new_item.posa_row_id);
       }
       this.update_item_detail(new_item);
       return new_item;
@@ -3024,9 +3029,13 @@ export default {
       evntBus.$emit("set_customer_info_to_edit", this.customer_info);
     },
     expanded(data_value) {
-      // this.update_items_details(data_value);
-      if (data_value.length > 0) {
-        this.update_item_detail(data_value[0]);
+      // "expanded" بقى يحمل قيمة posa_row_id (item-value) لا الكائن
+      // الكامل بعد إصلاح خانات خصم الصنف — لازم نلاقي الصنف الحقيقي.
+      if (data_value.length > 0 && data_value[0]) {
+        const found_item = this.items.find(
+          (i) => i.posa_row_id === data_value[0]
+        );
+        if (found_item) this.update_item_detail(found_item);
       }
     },
     discount_percentage_offer_name() {
