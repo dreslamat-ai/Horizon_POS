@@ -19,6 +19,9 @@ if (!window.__posa_pos_profile_hook_registered) {
 			frm.add_custom_button(__('طباعة باركود الأصناف'), function () {
 				posa_show_barcode_print_dialog(frm);
 			}, __('أدوات'));
+			frm.add_custom_button(__('تحديث قائمة الطابعات من QZ Tray'), function () {
+				posa_refresh_printer_list(frm);
+			}, __('أدوات'));
 		},
 	});
 }
@@ -53,6 +56,27 @@ function posa_connect_qz() {
 		};
 	});
 	return qz.websocket.connect();
+}
+
+// بطلب صريح من المالك (٢٠ سبتمبر ٢٠٢٦): اختيار اسم الطابعة من قائمة
+// حقيقية مسجَّلة فعليًا على جهاز الكاشير (qz.printers.find())، بدل
+// كتابته يدويًا وعرضة لأي خطأ إملائي بسيط يمنع الطباعة بلا سبب واضح.
+function posa_refresh_printer_list(frm) {
+	posa_connect_qz().then(function () {
+		return qz.printers.find();
+	}).then(function (names) {
+		const options = [''].concat(names || []);
+		['posa_barcode_printer_name', 'posa_thermal_printer_name'].forEach(function (fieldname) {
+			frm.set_df_property(fieldname, 'options', options);
+			frm.refresh_field(fieldname);
+		});
+		frappe.show_alert({
+			message: __('لُقطت {0} طابعة من QZ Tray', [names.length]),
+			indicator: 'green',
+		});
+	}).catch(function (err) {
+		frappe.msgprint(__('تعذّر جلب قائمة الطابعات — تأكّد إن QZ Tray شغّالة على هذا الجهاز: {0}', [String(err)]));
+	});
 }
 
 
@@ -304,9 +328,10 @@ function posa_show_barcode_print_dialog(frm) {
 			},
 			{ fieldtype: 'Column Break' },
 			{
-				fieldtype: 'Data', fieldname: 'printer_name', label: __('اسم طابعة الملصقات (QZ Tray)'),
+				fieldtype: 'Select', fieldname: 'printer_name', label: __('اسم طابعة الملصقات (QZ Tray)'),
+				options: frm.doc.posa_barcode_printer_name ? [frm.doc.posa_barcode_printer_name] : [],
 				default: frm.doc.posa_barcode_printer_name || '',
-				description: __('تقدر تغيّره هنا وقت الطباعة بلا ما تحفظه في هذا الفورم'),
+				description: __('قائمة الطابعات المسجَّلة فعليًا على هذا الجهاز — تُجلب تلقائيًا عند فتح هذا الديالوج'),
 			},
 			{ fieldtype: 'Section Break', label: __('حجم ووزن خط كل سطر') },
 			{
@@ -413,6 +438,15 @@ function posa_show_barcode_print_dialog(frm) {
 
 	render_items_preview(dialog);
 	dialog.show();
+
+	// تحديث تلقائي لقائمة الطابعات من QZ Tray فور فتح الديالوج — بلا
+	// رسالة خطأ لو فشل الاتصال (مش وقت طباعة فعلي بعد، مجرد تحميل).
+	posa_connect_qz().then(function () { return qz.printers.find(); }).then(function (names) {
+		const current = dialog.get_value('printer_name');
+		dialog.fields_dict.printer_name.df.options = names || [];
+		dialog.fields_dict.printer_name.refresh();
+		if (current) dialog.set_value('printer_name', current);
+	}).catch(function () {});
 
 	// نفس شكل ولون الزرّين — فرابي بيميّز آخر زرّ Button تلقائيًا لو
 	// مافيش primary_action محدَّد، فيطلع مختلف عن جاره بلا سبب تصميمي.
