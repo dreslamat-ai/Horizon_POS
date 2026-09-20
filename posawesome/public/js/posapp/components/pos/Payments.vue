@@ -941,11 +941,13 @@ export default {
         print_format +
         "&no_letterhead=" +
         letter_head;
+      const vm = this;
       const printWindow = window.open(url, "Print");
       printWindow.addEventListener(
         "load",
         function () {
           printWindow.print();
+          vm.notify_print_result();
           // printWindow.close();
           // NOTE : uncomoent this to auto closing printing window
         },
@@ -960,6 +962,22 @@ export default {
     // on the till; whether the Horizon self-signed cert actually suppresses
     // QZ's per-request security prompt is UNVERIFIED — no real till has
     // been tested against this code yet.
+    // إعداد جديد في POS Profile (طلب مالك ٢١ سبتمبر ٢٠٢٦): تأكيد
+    // تفاعلي (dialog يحتاج إغلاق يدوي) لو مفعّل، أو توست عابر "تم
+    // الطباعة" لو غير مفعّل — الفرق مقصود: الحرارية ممكن "تنجح"
+    // برمجيًا (qz.print بلا خطأ) والطابعة فعليًا ما طبعتش (ورق خلص/
+    // مقفولة)، فالتأكيد التفاعلي يفرض على الكاشير يتحقّق بصريًا.
+    notify_print_result() {
+      if (this.pos_profile.posa_show_print_confirmation) {
+        frappe.msgprint({
+          title: __("تأكيد الطباعة"),
+          message: __("تأكّد إن الإيصال طُبع فعليًا من الطابعة قبل تسليمه للعميل."),
+          indicator: "blue",
+        });
+      } else {
+        evntBus.$emit("show_mesage", { text: __("تم الطباعة"), color: "success" });
+      }
+    },
     print_thermal_receipt(invoice_name) {
       const vm = this;
       if (typeof qz === "undefined") {
@@ -1006,13 +1024,17 @@ export default {
                 data: r.message.image_base64,
               },
             ];
-            qz.print(config, print_data).catch(function (err) {
-              evntBus.$emit("show_mesage", {
-                text:
-                  __("فشلت الطباعة الحرارية: ") + err,
-                color: "error",
+            qz.print(config, print_data)
+              .then(function () {
+                vm.notify_print_result();
+              })
+              .catch(function (err) {
+                evntBus.$emit("show_mesage", {
+                  text:
+                    __("فشلت الطباعة الحرارية: ") + err,
+                  color: "error",
+                });
               });
-            });
           },
         });
       };
