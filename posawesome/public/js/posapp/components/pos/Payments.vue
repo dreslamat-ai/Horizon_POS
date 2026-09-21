@@ -14,10 +14,9 @@
       <div class="overflow-y-auto px-2 pt-2" style="max-height: 75vh">
         <v-row v-if="invoice_doc" class="px-1 py-0">
           <v-col cols="7">
-            <v-text-field
+            <label class="posa-field-label">{{ __('المبلغ المدفوع') }}</label>              <v-text-field
               outlined
               color="primary"
-              :label="frappe._('المبلغ المدفوع')"
               background-color="white"
               hide-details
               :model-value="formtCurrency(total_payments)"
@@ -27,10 +26,9 @@
             ></v-text-field>
           </v-col>
           <v-col cols="5">
-            <v-text-field
+            <label class="posa-field-label">{{ __(diff_lable) }}</label>              <v-text-field
               outlined
               color="primary"
-              :label="frappe._(diff_lable)"
               background-color="white"
               hide-details
               :model-value="formtCurrency(diff_payment)"
@@ -41,10 +39,9 @@
           </v-col>
 
           <v-col cols="7" v-if="diff_payment < 0 && !invoice_doc.is_return">
-            <v-text-field
+            <label class="posa-field-label">{{ __('الباقي') }}</label>              <v-text-field
               outlined
               color="primary"
-              :label="frappe._('الباقي')"
               background-color="white"
               v-model="paid_change"
               @input="set_paid_change()"
@@ -57,10 +54,9 @@
           </v-col>
 
           <v-col cols="5" v-if="diff_payment < 0 && !invoice_doc.is_return">
-            <v-text-field
+            <label class="posa-field-label">{{ __('الرصيد الباقي') }}</label>              <v-text-field
               outlined
               color="primary"
-              :label="frappe._('الرصيد الباقي')"
               background-color="white"
               hide-details
               :model-value="formtCurrency(credit_change)"
@@ -79,11 +75,10 @@
             :key="payment.name"
           >
             <v-col cols="6" v-if="!is_mpesa_c2b_payment(payment)">
-              <v-text-field
+              <label class="posa-field-label">{{ __(payment.mode_of_payment) }}</label>                <v-text-field
                 dense
                 outlined
                 color="primary"
-                :label="frappe._(payment.mode_of_payment)"
                 background-color="white"
                 hide-details
                 :model-value="formtCurrency(payment.amount)"
@@ -162,11 +157,10 @@
           "
         >
           <v-col cols="7">
-            <v-text-field
+            <label class="posa-field-label">{{ __('تبديل نقاط الولاء') }}</label>              <v-text-field
               dense
               outlined
               color="primary"
-              :label="frappe._('تبديل نقاط الولاء')"
               background-color="white"
               hide-details
               v-model="loyalty_amount"
@@ -175,11 +169,10 @@
             ></v-text-field>
           </v-col>
           <v-col cols="5">
-            <v-text-field
+            <label class="posa-field-label">{{ __('يمكنك استبدال حتى') }}</label>              <v-text-field
               dense
               outlined
               color="primary"
-              :label="frappe._('يمكنك استبدال حتى')"
               background-color="white"
               hide-details
               :model-value="formtFloat(available_pioints_amount)"
@@ -199,12 +192,11 @@
           "
         >
           <v-col cols="7">
-            <v-text-field
+            <label class="posa-field-label">{{ __('رصيد العميل المستبدل') }}</label>              <v-text-field
               dense
               outlined
               disabled
               color="primary"
-              :label="frappe._('رصيد العميل المستبدل')"
               background-color="white"
               hide-details
               v-model="redeemed_customer_credit"
@@ -213,11 +205,10 @@
             ></v-text-field>
           </v-col>
           <v-col cols="5">
-            <v-text-field
+            <label class="posa-field-label">{{ __('يمكنك استبدال رصيد حتى') }}</label>              <v-text-field
               dense
               outlined
               color="primary"
-              :label="frappe._('يمكنك استبدال رصيد حتى')"
               background-color="white"
               hide-details
               :model-value="formtCurrency(available_customer_credit)"
@@ -230,11 +221,10 @@
 
         <v-row class="px-1 py-0">
           <v-col cols="6">
-            <v-text-field
+            <label class="posa-field-label">{{ __('صافي الإجمالي') }}</label>              <v-text-field
               dense
               outlined
               color="primary"
-              :label="frappe._('صافي الإجمالي')"
               background-color="white"
               hide-details
               :model-value="formtCurrency(invoice_doc.net_total)"
@@ -243,11 +233,10 @@
             ></v-text-field>
           </v-col>
           <v-col cols="6">
-            <v-text-field
+            <label class="posa-field-label">{{ __('الضرائب والمصاريف') }}</label>              <v-text-field
               dense
               outlined
               color="primary"
-              :label="frappe._('الضرائب والمصاريف')"
               background-color="white"
               hide-details
               :model-value="formtCurrency(invoice_doc.total_taxes_and_charges)"
@@ -256,11 +245,10 @@
             ></v-text-field>
           </v-col>
           <v-col cols="6">
-            <v-text-field
+            <label class="posa-field-label">{{ __('القيمة الإجمالية') }}</label>              <v-text-field
               dense
               outlined
               color="primary"
-              :label="frappe._('القيمة الإجمالية')"
               background-color="white"
               hide-details
               :model-value="formtCurrency(invoice_doc.total)"
@@ -269,11 +257,10 @@
             ></v-text-field>
           </v-col>
           <v-col cols="6">
-            <v-text-field
+            <label class="posa-field-label">{{ __('قيمة الخصم') }}</label>              <v-text-field
               dense
               outlined
               color="primary"
-              :label="frappe._('قيمة الخصم')"
               background-color="white"
               hide-details
               :model-value="formtCurrency(invoice_doc.discount_amount)"
@@ -282,11 +269,10 @@
             ></v-text-field>
           </v-col>
           <v-col cols="6">
-            <v-text-field
+            <label class="posa-field-label">{{ __('الإجمالي') }}</label>              <v-text-field
               dense
               outlined
               color="primary"
-              :label="frappe._('الإجمالي')"
               background-color="white"
               hide-details
               :model-value="formtCurrency(invoice_doc.grand_total)"
@@ -295,11 +281,10 @@
             ></v-text-field>
           </v-col>
           <v-col v-if="invoice_doc.rounded_total" cols="6">
-            <v-text-field
+            <label class="posa-field-label">{{ __('الإجمالي المقرب') }}</label>              <v-text-field
               dense
               outlined
               color="primary"
-              :label="frappe._('الإجمالي المقرب')"
               background-color="white"
               hide-details
               :model-value="formtCurrency(invoice_doc.rounded_total)"
@@ -319,9 +304,8 @@
               dense
             >
               <template v-slot:activator="{ on, attrs }">
-                <v-text-field
+                <label class="posa-field-label">{{ __('تاريخ التوصيل') }}</label>                  <v-text-field
                   v-model="invoice_doc.posa_delivery_date"
-                  :label="frappe._('تاريخ التوصيل')"
                   readonly
                   outlined
                   dense
@@ -345,13 +329,13 @@
             </v-menu>
           </v-col>
           <v-col cols="12" v-if="invoice_doc.posa_delivery_date">
+            <label class="posa-field-label">{{ __('العنوان') }}</label>
             <v-autocomplete
               dense
               clearable
               auto-select-first
               outlined
               color="primary"
-              :label="frappe._('العنوان')"
               v-model="invoice_doc.shipping_address_name"
               :items="addresses"
               item-title="address_title"
@@ -397,6 +381,7 @@
             </v-autocomplete>
           </v-col>
           <v-col cols="12" v-if="pos_profile.posa_display_additional_notes">
+            <label class="posa-field-label">{{ __('ملاحظات اضافية') }}</label>
             <v-textarea
               class="pa-0"
               outlined
@@ -406,7 +391,6 @@
               color="primary"
               auto-grow
               rows="2"
-              :label="frappe._('ملاحظات اضافية')"
               v-model="invoice_doc.posa_notes"
               :model-value="invoice_doc.posa_notes"
             ></v-textarea>
@@ -417,9 +401,8 @@
           <v-divider></v-divider>
           <v-row class="px-1 py-0" justify="center" align="start">
             <v-col cols="6">
-              <v-text-field
+              <label class="posa-field-label">{{ __('أمر شراء') }}</label>                <v-text-field
                 v-model="invoice_doc.po_no"
-                :label="frappe._('أمر شراء')"
                 outlined
                 dense
                 background-color="white"
@@ -436,9 +419,8 @@
                 transition="scale-transition"
               >
                 <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
+                  <label class="posa-field-label">{{ __('تاريخ امر الشراء') }}</label>                    <v-text-field
                     v-model="invoice_doc.po_date"
-                    :label="frappe._('تاريخ امر الشراء')"
                     readonly
                     outlined
                     dense
@@ -507,9 +489,8 @@
               transition="scale-transition"
             >
               <template v-slot:activator="{ on, attrs }">
-                <v-text-field
+                <label class="posa-field-label">{{ __('تاريخ الإستحقاق') }}</label>                  <v-text-field
                   v-model="invoice_doc.due_date"
-                  :label="frappe._('تاريخ الإستحقاق')"
                   readonly
                   outlined
                   dense
@@ -556,11 +537,10 @@
               <div class="pa-2 py-3">{{ row.credit_origin }}</div>
             </v-col>
             <v-col cols="4">
-              <v-text-field
+              <label class="posa-field-label">{{ __('الرصيد المتاح') }}</label>                <v-text-field
                 dense
                 outlined
                 color="primary"
-                :label="frappe._('الرصيد المتاح')"
                 background-color="white"
                 hide-details
                 :model-value="formtCurrency(row.total_credit)"
@@ -569,11 +549,10 @@
               ></v-text-field>
             </v-col>
             <v-col cols="4">
-              <v-text-field
+              <label class="posa-field-label">{{ __('إستبدال الرصيد') }}</label>                <v-text-field
                 dense
                 outlined
                 color="primary"
-                :label="frappe._('إستبدال الرصيد')"
                 background-color="white"
                 hide-details
                 type="number"
@@ -586,13 +565,13 @@
         <v-divider></v-divider>
         <v-row class="pb-0 mb-2" align="start">
           <v-col cols="12">
+            <label class="posa-field-label">{{ __('مسؤول المبيعات') }}</label>
             <v-autocomplete
               dense
               clearable
               auto-select-first
               outlined
               color="primary"
-              :label="frappe._('مسؤول المبيعات')"
               v-model="sales_person"
               :items="sales_persons"
               item-title="sales_person_name"
@@ -668,11 +647,10 @@
           </v-card-title>
           <v-card-text class="pa-0">
             <v-container>
-              <v-text-field
+              <label class="posa-field-label">{{ __('رقم الموبايل') }}</label>                <v-text-field
                 dense
                 outlined
                 color="primary"
-                :label="frappe._('رقم الموبايل')"
                 background-color="white"
                 hide-details
                 v-model="invoice_doc.contact_mobile"

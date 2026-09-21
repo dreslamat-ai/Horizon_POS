@@ -727,3 +727,44 @@
 #page-posapp .selection .v-btn--block {
     height: 56px !important;
 }
+
+/* إعادة تصميم كاملة (طلب مالك صريح ٢١ سبتمبر ٢٠٢٦): label ثابت فوق
+   الحقل بدل floating outlined — بيرصّ عموديًا بشكل طبيعي دايمًا
+   (block عادي)، بلا اعتماد على حسابات Vuetify الداخلية اللي فشلت
+   تتحقق بثبات. مطبَّق في Payments.vue على ٢٢ حقل. */
+#page-posapp .posa-field-label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--h-ink-soft);
+    margin-bottom: 4px;
+    padding-inline-start: 2px;
+}
+#page-posapp .selection .v-field {
+    --v-field-padding-top: 8px;
+    --v-field-padding-bottom: 8px;
+}
+#page-posapp .selection .v-field-label {
+    display: none;
+}
+
+/* v-autocomplete (مسؤول المبيعات، العنوان) بيتحوّل لـvariant-filled
+   بلا حد إطلاقًا بعد ما شلنا :label الداخلية منه (بلاغ لقطة حقيقية
+   من جهاز المالك) — outline بتاعة Vuetify معطوبة لهذا المكوّن، فبنفرض
+   حد كحلي مباشر بدل الاعتماد عليها. */
+#page-posapp .selection .v-field--variant-filled {
+    border: 1.5px solid var(--h-navy);
+    border-radius: 8px;
+    background-color: #fff !important;
+}
+#page-posapp .selection .v-field--variant-filled .v-field__overlay {
+    display: none;
+}
+
+/* رمز العملة (prefix) كان مدفوعًا لأعلى الحقل بدل المنتصف (بلاغ لقطة
+   حقيقية IMG_3655) — align-items:flex-start موروثة من زمن وجود label
+   عائمة تحتاج مساحة فوقها؛ بعد نقل الليبل لعنصر ثابت خارجي (posa-field-
+   label) الفراغ ده بقى بلا داعي، فبنوسّط المحتوى رأسيًا. */
+#page-posapp .selection .v-field__field {
+    align-items: center !important;
+}
