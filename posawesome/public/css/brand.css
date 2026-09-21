@@ -767,28 +767,63 @@
        صريحة حتى في الوضع الداكن. مكان واحد يتحكّم في اللون، لا ٢٢
        تكرارًا. */
     background-color: var(--h-surface);
+    /* الحدّ صار على الحاوية الخارجية نفسها لا على الطبقة الداخلية
+       v-field__outline — راجع الشرح والحلّ الكاملين أسفل هذا الملف
+       (بلاغ "رمز العملة صندوقان منفصلان"، ٢١ سبتمبر ٢٠٢٦). */
+    border: 1.5px solid var(--h-line);
+    /* بدون هذا، الحدّ الجديد (١٫٥px) يزيد الارتفاع الخارجي للحقل عن
+       ٥٦px لو كان box-sizing الموروث content-box في أي مكان بالسلسلة —
+       وهذا يكسر تطابق ارتفاع الحقل مع الزرار (.v-btn--block { height:
+       56px }) المُصلَح فعليًا لبلاغ مالك سابق. border-box يضمن أن الحدّ
+       يُحسب من داخل الـ٥٦px لا فوقها. */
+    box-sizing: border-box;
 }
-#page-posapp .selection .v-field--variant-outlined .v-field__outline {
-    --v-field-border-width: 1.5px;
-    --v-field-border-opacity: 1;
-    color: var(--h-line);
+#page-posapp .selection .v-field--variant-outlined.v-field--focused {
+    border-color: var(--h-navy);
 }
-#page-posapp .selection .v-field--variant-outlined.v-field--focused .v-field__outline {
-    color: var(--h-navy);
+
+/* بلاغ مالك سترة (٢١ سبتمبر ٢٠٢٦، لقطة معلَّمة بخط أحمر): "رمز العملة
+   جنب حقول المبالغ شكله سيء جدًا — ليه مش على سطر واحد". تأكّد بصريًا
+   من لقطتين حقيقيتين (f03_payment_open.png وف03 المعلَّمة) على كل حقول
+   الشاشة بلا استثناء (المدفوع/الباقي/نقدي/بطاقة/الإجماليات): الرقم
+   ورمز العملة يظهران كصندوقين منفصلين تمامًا بحافتين مستديرتين مستقلّتين
+   وفراغ بينهما بلا أي خط يربطهما.
+
+   السبب الجذري (بعد فحص الكود الحقيقي وليس تخمينًا): حدّ الحقل
+   outlined في Vuetify 3 يُرسَم بثلاث قطع DOM منفصلة داخل .v-field__outline
+   — start / notch / end. قطعة "notch" الوسطى مصمَّمة أصلاً لحجز مسافة
+   label عائم يعبر الحدّ من خلالها عند التركيز. كل حقل في Payments.vue
+   هنا (٢٥ حقلًا) لا يمرّر أي label داخلي — الليبل عنصر Arabic ثابت
+   خارج الحقل تمامًا (.posa-field-label) — فتنكمش قطعة notch ولا يُرسَم
+   فيها أي حدّ، ويتبقّى قوسان مستقلّان بصريًا: واحد يحيط بالرقم وواحد
+   يحيط برمز العملة، بفراغ في المنتصف بلا خط يصلهما. وهذا يوافق تمامًا
+   القياس السابق الذي وجد أن حدود outline (bounding box) الأب تطابق
+   حدود الحقل الكامل — لأن ذاك القياس قاس صندوق الحاوية لا الخطّ
+   المرسوم فعليًا بداخلها، فلم يكشف الفراغ في notch.
+
+   الحل: تعطيل حدّ القطع الثلاث الداخلية كليًا، ورسم حدّ واحد متصل
+   مباشرة على الحاوية الخارجية (.v-field--variant-outlined أعلاه) —
+   صندوق واحد بصرف النظر عن آلية Vuetify الداخلية المصمَّمة لحالة label
+   عائم لا تنطبق على أي حقل في هذه الشاشة. */
+#page-posapp .selection .v-field--variant-outlined .v-field__outline,
+#page-posapp .selection .v-field--variant-outlined .v-field__outline__start,
+#page-posapp .selection .v-field--variant-outlined .v-field__outline__notch,
+#page-posapp .selection .v-field--variant-outlined .v-field__outline__end {
+    border: none !important;
+    background: transparent !important;
 }
 
 /* رمز العملة (prefix) — توسيط رأسي صريح. Vuetify يحسب موضع الـprefix
    بافتراض احتمال وجود label عائمة داخل صندوق الحقل؛ حقولنا بلا label
    داخلية إطلاقًا، فنفرض التوسيط الرأسي بدل الاعتماد على حساب داخلي
-   مصمَّم لحالة لا تنطبق هنا. ⚠ افتراض غير مؤكَّد بتشغيل حقيقي (هذا
-   بالضبط العطل الذي اشتكى منه المالك بالدائرة الحمراء) — أول ما
-   يُراجَع بصريًا بعد النشر. لو رمز العملة لسه غير متوسّط مع الرقم رغم
-   هذا، الخطوة التالية تصفير padding-top/bottom على .v-field__input
-   تحديدًا (الحشو المصمَّم أصلاً لحجز مساحة label عائمة غير موجودة
-   هنا) — لم تُطبَّق هنا عمدًا لأن ذلك يزيل جزءًا من الارتفاع الداخلي
-   الذي يصل بالحقل لـ٥٦px، وقد يُنتج نفس عطل عدم تطابق الارتفاع مع
-   الأزرار الذي حُلّ لتوّه (متطلَّب صريح: ارتفاعات موحَّدة) — خطوة
-   واحدة تُغيَّر في كل مرة، لا اثنتان معًا. */
+   مصمَّم لحالة لا تنطبق هنا. ✅ راجعتُ بصريًا فعليًا بعد النشر (لقطتا
+   f03_payment_open.png وف03 المعلَّمة، ٢١ سبتمبر ٢٠٢٦): التوسيط الرأسي
+   نفسه سليم — الرقم ورمز العملة على نفس الخط الرأسي. العطل الذي
+   اشتكى منه المالك بالدائرة الحمراء عطلٌ مختلف تمامًا (انفصال الحدّ
+   نفسه لصندوقين، لا سوء توسيط) — حلّه في القسم أعلاه
+   (.v-field__outline / __start / __notch / __end). padding-top/bottom
+   المذكور هنا لم يعد مطروحًا كخطوة تالية محتملة لأن العطل الفعلي غير
+   متعلّق بالحشو الداخلي أصلًا. */
 #page-posapp .selection .v-field__field {
     align-items: center !important;
 }
@@ -804,6 +839,11 @@
 #page-posapp .selection .v-field--disabled {
     opacity: 1;
     background-color: var(--h-cream) !important;
+    /* الحدّ بقى على هذا العنصر نفسه (v-field--variant-outlined) بعد
+       إصلاح "صندوقين منفصلين" أعلاه — لو Vuetify يفرض border-color:
+       transparent على الحالة المعطَّلة، هذا يمنع اختفاء الحدّ عن
+       الحقول المحسوبة (صافي الإجمالي، القيمة الإجمالية...). */
+    border-color: var(--h-line) !important;
 }
 #page-posapp .selection .v-field--disabled input,
 #page-posapp .selection .v-field--disabled .v-field__prefix {
