@@ -955,7 +955,6 @@ export default {
 
   computed: {
     total_qty() {
-      this.close_payments();
       let qty = 0;
       this.items.forEach((item) => {
         qty += flt(item.qty);
@@ -970,7 +969,6 @@ export default {
       return this.flt(sum, this.currency_precision);
     },
     subtotal() {
-      this.close_payments();
       let sum = 0;
       this.items.forEach((item) => {
         sum += flt(item.qty) * flt(item.rate);
@@ -1022,8 +1020,12 @@ export default {
       if (index >= 0) {
         this.items.splice(index, 1);
       }
+      // expanded بقت تحتوي posa_row_id (نص) لا الكائن الكامل — بعد
+      // توحيد شكلها (إصلاح عطل خانات خصم الصنف، ٢١ سبتمبر ٢٠٢٦).
+      // المقارنة بـ el.posa_row_id على نص كانت ترجع undefined دايمًا،
+      // فالصنف المحذوف يفضل عالق في expanded (مراجعة معمارية ق٤).
       const idx = this.expanded.findIndex(
-        (el) => el.posa_row_id == item.posa_row_id
+        (el) => el == item.posa_row_id
       );
       if (idx >= 0) {
         this.expanded.splice(idx, 1);
@@ -3051,6 +3053,7 @@ export default {
       // الحزمة لم يظهر رغم أن كل بيانات المطابقة كانت صحيحة ١٠٠٪.
       deep: true,
       handler(items) {
+        this.close_payments();
         this.handelOffers();
         this.check_bundle_match();
         this.$forceUpdate();
