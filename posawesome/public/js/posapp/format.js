@@ -84,7 +84,14 @@ export default {
             return get_currency_symbol(currency);
         },
         isNumber (value) {
-            const pattern = /^-?(\d+|\d{1,3}(\.\d{3})*)(,\d+)?$/;
+            // العطل الأصلي: الصيغة كانت أوروبية (نقطة لفصل الآلاف، فاصلة
+            // للكسر العشري) — بينما formtCurrency/formtFloat هنا يخرجان
+            // دائمًا بصيغة إنجليزية (فاصلة للآلاف، نقطة للكسر: "300.00"،
+            // "1,258.60"). فكانت كل قيمة عشرية صحيحة تُرفَض "invalid
+            // number" — لم يظهر العطل قبل الآن لأن حقول الدفع كانت ترجع
+            // صفرًا قبل ظهور أي قيمة عشرية أصلًا (انظر on_payment_amount_change
+            // أعلاه). اكتُشف بلقطة حقيقية بعد إصلاح ذاك العطل مباشرة.
+            const pattern = /^-?\d{1,3}(,\d{3})*(\.\d+)?$/;
             return pattern.test(value) || "invalid number";
 
         }
