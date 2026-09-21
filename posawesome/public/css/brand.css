@@ -714,25 +714,34 @@
     font-family: inherit;
 }
 
-/* بلاغ حقيقي (٢١ سبتمبر ٢٠٢٦، لقطة شاشة): label الحقل outlined
-   العائم كان بيتراكب مع الحقل اللي فوقه في شاشة الدفع — صفوف طرق
-   الدفع/الإجماليات كل واحد v-row بـpy-0 (بلا فاصل عمودي)، والليبل
-   العربي محتاج مساحة فوق الحقل نفسها لما تكون فيه قيمة (floating). */
-#page-posapp .selection .v-row + .v-row {
-    margin-top: 18px;
-}
+/* ============================================================
+   نظام حقول شاشة الدفع — إعادة تصميم جذرية لا ترقيع (مالك سترة رفض
+   ٣ محاولات ترقيع متتالية، طلب صراحةً حلاً متكاملاً، ٢١ سبتمبر ٢٠٢٦).
 
-/* بلاغ مالك (٢١ سبتمبر ٢٠٢٦): أزرار شاشة الدفع (٣٦px) أقصر من حقول
-   النص المجاورة (٥٦px) — قِيس فعليًا بـgetBoundingClientRect. */
-#page-posapp .selection .v-btn--block {
-    height: 56px !important;
-}
+   السبب الجذري للأعطال الثلاثة (تراكب الليبل، فقد حد الـautocomplete،
+   انزياح رمز العملة) كان واحدًا لا ثلاثة: Payments.vue كان يستخدم
+   أسماء خصائص Vuetify 2 القديمة (outlined / dense / background-color
+   كخصائص منطقية) رغم أن التطبيق Vue3/Vuetify3 فعليًا. هذه الأسماء غير
+   صالحة في Vuetify 3 (الصحيح: variant / density / bg-color)، فكانت كل
+   حقول الشاشة تعتمد على نمط العرض الافتراضي لـVuetify 3 بدل الشكل
+   المقصود — ومن هنا التفاوت بين نوع وآخر (لماذا فقد الـautocomplete
+   حدّه دون حقول النص، مثلاً).
 
-/* إعادة تصميم كاملة (طلب مالك صريح ٢١ سبتمبر ٢٠٢٦): label ثابت فوق
-   الحقل بدل floating outlined — بيرصّ عموديًا بشكل طبيعي دايمًا
-   (block عادي)، بلا اعتماد على حسابات Vuetify الداخلية اللي فشلت
-   تتحقق بثبات. مطبَّق في Payments.vue على ٢٢ حقل. */
-#page-posapp .posa-field-label {
+   التصحيح الجذري في Payments.vue نفسه: variant="outlined" صريحة على
+   الحقول الخمسة والعشرين بلا استثناء (نص، منطقة نص، بحث تلقائي)،
+   بدل الاعتماد على افتراضي غير موثّق. هذا القسم في brand.css لم يعد
+   "يعوّض" غياب حد أو محاذاة — فقط يضبط تفاصيل الهوية (لون الحد،
+   نصف القطر، لون الحالة المعطّلة) فوق سلوك Vuetify الصحيح والمتوقَّع. */
+
+/* المسافة الفاصلة بين كل حقل وتاليه — على مستوى غلاف الحقل نفسه
+   (.posa-field) لا على .v-row. لأن عمودين (v-col) في نفس الصف قد
+   يلتفّان لسطرين على شاشة ضيقة (٣٩٠px) دون وجود ".v-row" ثانٍ فعليًا
+   في الـDOM، فقاعدة "v-row + v-row" السابقة كانت عمياء عن هذه الحالة
+   تحديدًا. المسافة هنا مضمونة بصرف النظر عن التفاف الشبكة. */
+#page-posapp .selection .posa-field {
+    margin-bottom: 16px;
+}
+#page-posapp .selection .posa-field-label {
     display: block;
     font-size: 11.5px;
     font-weight: 700;
@@ -740,31 +749,104 @@
     margin-bottom: 4px;
     padding-inline-start: 2px;
 }
-#page-posapp .selection .v-field {
-    --v-field-padding-top: 8px;
-    --v-field-padding-bottom: 8px;
-}
+/* دفاعي: لا حقل في Payments.vue يمرّر :label داخليًا (الليبل عنصر
+   ثابت خارجي دائمًا)، لكن لو أي مكوّن Vuetify يحجز مساحة لليبل فارغة
+   بشكل ضمني، هذا يمنع عودتها. */
 #page-posapp .selection .v-field-label {
     display: none;
 }
 
-/* v-autocomplete (مسؤول المبيعات، العنوان) بيتحوّل لـvariant-filled
-   بلا حد إطلاقًا بعد ما شلنا :label الداخلية منه (بلاغ لقطة حقيقية
-   من جهاز المالك) — outline بتاعة Vuetify معطوبة لهذا المكوّن، فبنفرض
-   حد كحلي مباشر بدل الاعتماد عليها. */
-#page-posapp .selection .v-field--variant-filled {
-    border: 1.5px solid var(--h-navy);
+/* الحد الموحَّد لكل أنواع الحقول (نص/منطقة نص/بحث تلقائي) — بما أن
+   الكل الآن variant="outlined" صراحةً، هذه القاعدة الواحدة تغطيهم
+   جميعًا بلا استثناءات لكل مكوّن على حدة. */
+#page-posapp .selection .v-field--variant-outlined {
     border-radius: 8px;
-    background-color: #fff !important;
+    /* خلفية الحقل — واعية بالوضع الداكن (--h-surface يتغيّر مع
+       [data-theme="dark"] أعلى الملف)، بدل bg-color="white" الثابتة
+       على المكوّن نفسه في Payments.vue التي كانت ستفرض خلفية بيضاء
+       صريحة حتى في الوضع الداكن. مكان واحد يتحكّم في اللون، لا ٢٢
+       تكرارًا. */
+    background-color: var(--h-surface);
 }
-#page-posapp .selection .v-field--variant-filled .v-field__overlay {
-    display: none;
+#page-posapp .selection .v-field--variant-outlined .v-field__outline {
+    --v-field-border-width: 1.5px;
+    --v-field-border-opacity: 1;
+    color: var(--h-line);
+}
+#page-posapp .selection .v-field--variant-outlined.v-field--focused .v-field__outline {
+    color: var(--h-navy);
 }
 
-/* رمز العملة (prefix) كان مدفوعًا لأعلى الحقل بدل المنتصف (بلاغ لقطة
-   حقيقية IMG_3655) — align-items:flex-start موروثة من زمن وجود label
-   عائمة تحتاج مساحة فوقها؛ بعد نقل الليبل لعنصر ثابت خارجي (posa-field-
-   label) الفراغ ده بقى بلا داعي، فبنوسّط المحتوى رأسيًا. */
+/* رمز العملة (prefix) — توسيط رأسي صريح. Vuetify يحسب موضع الـprefix
+   بافتراض احتمال وجود label عائمة داخل صندوق الحقل؛ حقولنا بلا label
+   داخلية إطلاقًا، فنفرض التوسيط الرأسي بدل الاعتماد على حساب داخلي
+   مصمَّم لحالة لا تنطبق هنا. ⚠ افتراض غير مؤكَّد بتشغيل حقيقي (هذا
+   بالضبط العطل الذي اشتكى منه المالك بالدائرة الحمراء) — أول ما
+   يُراجَع بصريًا بعد النشر. لو رمز العملة لسه غير متوسّط مع الرقم رغم
+   هذا، الخطوة التالية تصفير padding-top/bottom على .v-field__input
+   تحديدًا (الحشو المصمَّم أصلاً لحجز مساحة label عائمة غير موجودة
+   هنا) — لم تُطبَّق هنا عمدًا لأن ذلك يزيل جزءًا من الارتفاع الداخلي
+   الذي يصل بالحقل لـ٥٦px، وقد يُنتج نفس عطل عدم تطابق الارتفاع مع
+   الأزرار الذي حُلّ لتوّه (متطلَّب صريح: ارتفاعات موحَّدة) — خطوة
+   واحدة تُغيَّر في كل مرة، لا اثنتان معًا. */
 #page-posapp .selection .v-field__field {
     align-items: center !important;
+}
+#page-posapp .selection .v-field__prefix {
+    opacity: 1;
+    color: var(--h-ink-soft);
+    padding-inline-end: 4px;
+}
+
+/* الحقل المعطَّل (قيم محسوبة من السيرفر: الإجماليات، الأرصدة المتاحة)
+   — خلفية كريمية + نص أخفت معًا، لا اعتماد على تعتيم Vuetify الافتراضي
+   وحده الذي قد لا يكفي تباينًا تحت شمس مباشرة على شاشة الكاشير. */
+#page-posapp .selection .v-field--disabled {
+    opacity: 1;
+    background-color: var(--h-cream) !important;
+}
+#page-posapp .selection .v-field--disabled input,
+#page-posapp .selection .v-field--disabled .v-field__prefix {
+    color: var(--h-ink-soft) !important;
+}
+
+/* بلاغ مالك (٢١ سبتمبر ٢٠٢٦): أزرار شاشة الدفع (٣٦px) أقصر من حقول
+   النص المجاورة (٥٦px) — قِيس فعليًا بـgetBoundingClientRect. الحقول
+   نفسها تصل لـ٥٦px تلقائيًا الآن (variant="outlined" بلا density
+   مصغَّرة)، فهذا يطابق الأزرار عليها بدل العكس. */
+#page-posapp .selection .v-btn--block {
+    height: 56px !important;
+}
+
+/* المفتاح (v-switch) — لون الهوية بدل الأخضر الافتراضي، ومساحة لمس
+   كافية للاستخدام بإصبع واحد، ومسافة تفصله عن أي مفتاح مجاور لو
+   التف الصفان على شاشة ضيقة (أسماء أصناف Vuetify الداخلية هنا غير
+   مؤكَّدة بتشغيل فعلي — تأثيرها تجميليّ بحت، فشلها الصامت آمن). */
+#page-posapp .selection .v-switch {
+    margin-bottom: 8px;
+}
+#page-posapp .selection .v-switch .v-selection-control {
+    min-height: 44px;
+}
+#page-posapp .selection .v-selection-control--dirty .v-switch__thumb {
+    background-color: var(--h-gold);
+}
+
+/* نسخة بلا نطاق #page-posapp .selection — لتغطية حقل واحد فقط: "رقم
+   الموبايل" داخل v-dialog تأكيد الدفع بالهاتف. Vuetify 3 يبثّ محتوى
+   v-dialog (teleport) خارج شجرة DOM الأصلية أحيانًا، فقد يخرج هذا
+   الحقل من نطاق #page-posapp بالكامل ولا يصله أي تنسيق أعلاه — هذا
+   احتياط غير مؤكَّد بتشغيل فعلي (مسار نادر: الدفع عبر الهاتف فقط)،
+   بقيم ألوان صريحة بدل متغيرات --h-* لأن تلك المتغيرات نفسها معرَّفة
+   داخل #page-posapp ولن تُورَث لعنصر بُثّ خارجها. */
+.posa-field {
+    margin-bottom: 16px;
+}
+.posa-field-label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #6B7280;
+    margin-bottom: 4px;
+    padding-inline-start: 2px;
 }

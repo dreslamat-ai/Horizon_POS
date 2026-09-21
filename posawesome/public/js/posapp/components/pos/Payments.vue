@@ -14,56 +14,61 @@
       <div class="overflow-y-auto px-2 pt-2" style="max-height: 75vh">
         <v-row v-if="invoice_doc" class="px-1 py-0">
           <v-col cols="7">
-            <label class="posa-field-label">{{ __('المبلغ المدفوع') }}</label>              <v-text-field
-              outlined
-              color="primary"
-              background-color="white"
-              hide-details
-              :model-value="formtCurrency(total_payments)"
-              readonly
-              :prefix="currencySymbol(invoice_doc.currency)"
-              dense
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('المبلغ المدفوع') }}</label>
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                hide-details="auto"
+                :model-value="formtCurrency(total_payments)"
+                readonly
+                :prefix="currencySymbol(invoice_doc.currency)"
+              ></v-text-field>
+            </div>
           </v-col>
           <v-col cols="5">
-            <label class="posa-field-label">{{ __(diff_lable) }}</label>              <v-text-field
-              outlined
-              color="primary"
-              background-color="white"
-              hide-details
-              :model-value="formtCurrency(diff_payment)"
-              readonly
-              :prefix="currencySymbol(invoice_doc.currency)"
-              dense
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __(diff_lable) }}</label>
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                hide-details="auto"
+                :model-value="formtCurrency(diff_payment)"
+                readonly
+                :prefix="currencySymbol(invoice_doc.currency)"
+              ></v-text-field>
+            </div>
           </v-col>
 
           <v-col cols="7" v-if="diff_payment < 0 && !invoice_doc.is_return">
-            <label class="posa-field-label">{{ __('الباقي') }}</label>              <v-text-field
-              outlined
-              color="primary"
-              background-color="white"
-              v-model="paid_change"
-              @input="set_paid_change()"
-              :prefix="currencySymbol(invoice_doc.currency)"
-              :rules="paid_change_rules"
-              dense
-              readonly
-              type="number"
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('الباقي') }}</label>
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                v-model="paid_change"
+                @input="set_paid_change()"
+                :prefix="currencySymbol(invoice_doc.currency)"
+                :rules="paid_change_rules"
+                hide-details="auto"
+                readonly
+                type="number"
+              ></v-text-field>
+            </div>
           </v-col>
 
           <v-col cols="5" v-if="diff_payment < 0 && !invoice_doc.is_return">
-            <label class="posa-field-label">{{ __('الرصيد الباقي') }}</label>              <v-text-field
-              outlined
-              color="primary"
-              background-color="white"
-              hide-details
-              :model-value="formtCurrency(credit_change)"
-              readonly
-              :prefix="currencySymbol(invoice_doc.currency)"
-              dense
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('الرصيد الباقي') }}</label>
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                hide-details="auto"
+                :model-value="formtCurrency(credit_change)"
+                readonly
+                :prefix="currencySymbol(invoice_doc.currency)"
+              ></v-text-field>
+            </div>
           </v-col>
         </v-row>
         <v-divider></v-divider>
@@ -75,21 +80,22 @@
             :key="payment.name"
           >
             <v-col cols="6" v-if="!is_mpesa_c2b_payment(payment)">
-              <label class="posa-field-label">{{ __(payment.mode_of_payment) }}</label>                <v-text-field
-                dense
-                outlined
-                color="primary"
-                background-color="white"
-                hide-details
-                :model-value="formtCurrency(payment.amount)"
-                @change="
-                  setFormatedCurrency(payment, 'amount', null, true, $event)
-                "
-                :rules="[isNumber]"
-                :prefix="currencySymbol(invoice_doc.currency)"
-                @focus="set_rest_amount(payment.idx)"
-                :readonly="invoice_doc.is_return ? true : false"
-              ></v-text-field>
+              <div class="posa-field">
+                <label class="posa-field-label">{{ __(payment.mode_of_payment) }}</label>
+                <v-text-field
+                  variant="outlined"
+                  color="primary"
+                  hide-details="auto"
+                  :model-value="formtCurrency(payment.amount)"
+                  @change="
+                    setFormatedCurrency(payment, 'amount', null, true, $event)
+                  "
+                  :rules="[isNumber]"
+                  :prefix="currencySymbol(invoice_doc.currency)"
+                  @focus="set_rest_amount(payment.idx)"
+                  :readonly="invoice_doc.is_return ? true : false"
+                ></v-text-field>
+              </div>
             </v-col>
             <v-col
               v-if="!is_mpesa_c2b_payment(payment)"
@@ -157,28 +163,30 @@
           "
         >
           <v-col cols="7">
-            <label class="posa-field-label">{{ __('تبديل نقاط الولاء') }}</label>              <v-text-field
-              dense
-              outlined
-              color="primary"
-              background-color="white"
-              hide-details
-              v-model="loyalty_amount"
-              type="number"
-              :prefix="currencySymbol(invoice_doc.currency)"
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('تبديل نقاط الولاء') }}</label>
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                hide-details="auto"
+                v-model="loyalty_amount"
+                type="number"
+                :prefix="currencySymbol(invoice_doc.currency)"
+              ></v-text-field>
+            </div>
           </v-col>
           <v-col cols="5">
-            <label class="posa-field-label">{{ __('يمكنك استبدال حتى') }}</label>              <v-text-field
-              dense
-              outlined
-              color="primary"
-              background-color="white"
-              hide-details
-              :model-value="formtFloat(available_pioints_amount)"
-              :prefix="currencySymbol(invoice_doc.currency)"
-              disabled
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('يمكنك استبدال حتى') }}</label>
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                hide-details="auto"
+                :model-value="formtFloat(available_pioints_amount)"
+                :prefix="currencySymbol(invoice_doc.currency)"
+                disabled
+              ></v-text-field>
+            </div>
           </v-col>
         </v-row>
 
@@ -192,105 +200,113 @@
           "
         >
           <v-col cols="7">
-            <label class="posa-field-label">{{ __('رصيد العميل المستبدل') }}</label>              <v-text-field
-              dense
-              outlined
-              disabled
-              color="primary"
-              background-color="white"
-              hide-details
-              v-model="redeemed_customer_credit"
-              type="number"
-              :prefix="currencySymbol(invoice_doc.currency)"
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('رصيد العميل المستبدل') }}</label>
+              <v-text-field
+                variant="outlined"
+                disabled
+                color="primary"
+                hide-details="auto"
+                v-model="redeemed_customer_credit"
+                type="number"
+                :prefix="currencySymbol(invoice_doc.currency)"
+              ></v-text-field>
+            </div>
           </v-col>
           <v-col cols="5">
-            <label class="posa-field-label">{{ __('يمكنك استبدال رصيد حتى') }}</label>              <v-text-field
-              dense
-              outlined
-              color="primary"
-              background-color="white"
-              hide-details
-              :model-value="formtCurrency(available_customer_credit)"
-              :prefix="currencySymbol(invoice_doc.currency)"
-              disabled
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('يمكنك استبدال رصيد حتى') }}</label>
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                hide-details="auto"
+                :model-value="formtCurrency(available_customer_credit)"
+                :prefix="currencySymbol(invoice_doc.currency)"
+                disabled
+              ></v-text-field>
+            </div>
           </v-col>
         </v-row>
         <v-divider></v-divider>
 
         <v-row class="px-1 py-0">
           <v-col cols="6">
-            <label class="posa-field-label">{{ __('صافي الإجمالي') }}</label>              <v-text-field
-              dense
-              outlined
-              color="primary"
-              background-color="white"
-              hide-details
-              :model-value="formtCurrency(invoice_doc.net_total)"
-              disabled
-              :prefix="currencySymbol(invoice_doc.currency)"
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('صافي الإجمالي') }}</label>
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                hide-details="auto"
+                :model-value="formtCurrency(invoice_doc.net_total)"
+                disabled
+                :prefix="currencySymbol(invoice_doc.currency)"
+              ></v-text-field>
+            </div>
           </v-col>
           <v-col cols="6">
-            <label class="posa-field-label">{{ __('الضرائب والمصاريف') }}</label>              <v-text-field
-              dense
-              outlined
-              color="primary"
-              background-color="white"
-              hide-details
-              :model-value="formtCurrency(invoice_doc.total_taxes_and_charges)"
-              disabled
-              :prefix="currencySymbol(invoice_doc.currency)"
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('الضرائب والمصاريف') }}</label>
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                hide-details="auto"
+                :model-value="formtCurrency(invoice_doc.total_taxes_and_charges)"
+                disabled
+                :prefix="currencySymbol(invoice_doc.currency)"
+              ></v-text-field>
+            </div>
           </v-col>
           <v-col cols="6">
-            <label class="posa-field-label">{{ __('القيمة الإجمالية') }}</label>              <v-text-field
-              dense
-              outlined
-              color="primary"
-              background-color="white"
-              hide-details
-              :model-value="formtCurrency(invoice_doc.total)"
-              disabled
-              :prefix="currencySymbol(invoice_doc.currency)"
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('القيمة الإجمالية') }}</label>
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                hide-details="auto"
+                :model-value="formtCurrency(invoice_doc.total)"
+                disabled
+                :prefix="currencySymbol(invoice_doc.currency)"
+              ></v-text-field>
+            </div>
           </v-col>
           <v-col cols="6">
-            <label class="posa-field-label">{{ __('قيمة الخصم') }}</label>              <v-text-field
-              dense
-              outlined
-              color="primary"
-              background-color="white"
-              hide-details
-              :model-value="formtCurrency(invoice_doc.discount_amount)"
-              disabled
-              :prefix="currencySymbol(invoice_doc.currency)"
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('قيمة الخصم') }}</label>
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                hide-details="auto"
+                :model-value="formtCurrency(invoice_doc.discount_amount)"
+                disabled
+                :prefix="currencySymbol(invoice_doc.currency)"
+              ></v-text-field>
+            </div>
           </v-col>
           <v-col cols="6">
-            <label class="posa-field-label">{{ __('الإجمالي') }}</label>              <v-text-field
-              dense
-              outlined
-              color="primary"
-              background-color="white"
-              hide-details
-              :model-value="formtCurrency(invoice_doc.grand_total)"
-              disabled
-              :prefix="currencySymbol(invoice_doc.currency)"
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('الإجمالي') }}</label>
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                hide-details="auto"
+                :model-value="formtCurrency(invoice_doc.grand_total)"
+                disabled
+                :prefix="currencySymbol(invoice_doc.currency)"
+              ></v-text-field>
+            </div>
           </v-col>
           <v-col v-if="invoice_doc.rounded_total" cols="6">
-            <label class="posa-field-label">{{ __('الإجمالي المقرب') }}</label>              <v-text-field
-              dense
-              outlined
-              color="primary"
-              background-color="white"
-              hide-details
-              :model-value="formtCurrency(invoice_doc.rounded_total)"
-              disabled
-              :prefix="currencySymbol(invoice_doc.currency)"
-            ></v-text-field>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('الإجمالي المقرب') }}</label>
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                hide-details="auto"
+                :model-value="formtCurrency(invoice_doc.rounded_total)"
+                disabled
+                :prefix="currencySymbol(invoice_doc.currency)"
+              ></v-text-field>
+            </div>
           </v-col>
           <v-col
             cols="6"
@@ -304,18 +320,19 @@
               dense
             >
               <template v-slot:activator="{ on, attrs }">
-                <label class="posa-field-label">{{ __('تاريخ التوصيل') }}</label>                  <v-text-field
-                  v-model="invoice_doc.posa_delivery_date"
-                  readonly
-                  outlined
-                  dense
-                  background-color="white"
-                  clearable
-                  color="primary"
-                  hide-details
-                  v-bind="attrs"
-                  v-on="on"
-                ></v-text-field>
+                <div class="posa-field">
+                  <label class="posa-field-label">{{ __('تاريخ التوصيل') }}</label>
+                  <v-text-field
+                    v-model="invoice_doc.posa_delivery_date"
+                    readonly
+                    variant="outlined"
+                    clearable
+                    color="primary"
+                    hide-details="auto"
+                    v-bind="attrs"
+                    v-on="on"
+                  ></v-text-field>
+                </div>
               </template>
               <v-date-picker
                 v-model="invoice_doc.posa_delivery_date"
@@ -329,26 +346,25 @@
             </v-menu>
           </v-col>
           <v-col cols="12" v-if="invoice_doc.posa_delivery_date">
-            <label class="posa-field-label">{{ __('العنوان') }}</label>
-            <v-autocomplete
-              dense
-              clearable
-              auto-select-first
-              outlined
-              color="primary"
-              v-model="invoice_doc.shipping_address_name"
-              :items="addresses"
-              item-title="address_title"
-              item-value="name"
-              background-color="white"
-              no-data-text="العنوان غير موجود"
-              hide-details
-              :filter-keys="['raw.address_title', 'raw.address_line1', 'raw.address_line2', 'raw.city', 'raw.name']"
-              append-icon="mdi-plus"
-              @click:append="new_address"
-            >
-              <template v-slot:item="data">
-                                  <v-list-item-content v-bind="data.props">
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('العنوان') }}</label>
+              <v-autocomplete
+                variant="outlined"
+                clearable
+                auto-select-first
+                color="primary"
+                v-model="invoice_doc.shipping_address_name"
+                :items="addresses"
+                item-title="address_title"
+                item-value="name"
+                no-data-text="العنوان غير موجود"
+                hide-details="auto"
+                :filter-keys="['raw.address_title', 'raw.address_line1', 'raw.address_line2', 'raw.city', 'raw.name']"
+                append-icon="mdi-plus"
+                @click:append="new_address"
+              >
+                <template v-slot:item="data">
+                  <v-list-item-content v-bind="data.props">
                     <v-list-item-title
                       class="primary--text subtitle-1"
                       v-html="data.item.raw.address_title"
@@ -378,22 +394,24 @@
                     ></v-list-item-subtitle>
                   </v-list-item-content>
                 </template>
-            </v-autocomplete>
+              </v-autocomplete>
+            </div>
           </v-col>
           <v-col cols="12" v-if="pos_profile.posa_display_additional_notes">
-            <label class="posa-field-label">{{ __('ملاحظات اضافية') }}</label>
-            <v-textarea
-              class="pa-0"
-              outlined
-              dense
-              background-color="white"
-              clearable
-              color="primary"
-              auto-grow
-              rows="2"
-              v-model="invoice_doc.posa_notes"
-              :model-value="invoice_doc.posa_notes"
-            ></v-textarea>
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('ملاحظات اضافية') }}</label>
+              <v-textarea
+                class="pa-0"
+                variant="outlined"
+                clearable
+                color="primary"
+                auto-grow
+                rows="2"
+                hide-details="auto"
+                v-model="invoice_doc.posa_notes"
+                :model-value="invoice_doc.posa_notes"
+              ></v-textarea>
+            </div>
           </v-col>
         </v-row>
 
@@ -401,15 +419,16 @@
           <v-divider></v-divider>
           <v-row class="px-1 py-0" justify="center" align="start">
             <v-col cols="6">
-              <label class="posa-field-label">{{ __('أمر شراء') }}</label>                <v-text-field
-                v-model="invoice_doc.po_no"
-                outlined
-                dense
-                background-color="white"
-                clearable
-                color="primary"
-                hide-details
-              ></v-text-field>
+              <div class="posa-field">
+                <label class="posa-field-label">{{ __('أمر شراء') }}</label>
+                <v-text-field
+                  v-model="invoice_doc.po_no"
+                  variant="outlined"
+                  clearable
+                  color="primary"
+                  hide-details="auto"
+                ></v-text-field>
+              </div>
             </v-col>
             <v-col cols="6">
               <v-menu
@@ -419,16 +438,18 @@
                 transition="scale-transition"
               >
                 <template v-slot:activator="{ on, attrs }">
-                  <label class="posa-field-label">{{ __('تاريخ امر الشراء') }}</label>                    <v-text-field
-                    v-model="invoice_doc.po_date"
-                    readonly
-                    outlined
-                    dense
-                    hide-details
-                    v-bind="attrs"
-                    v-on="on"
-                    color="primary"
-                  ></v-text-field>
+                  <div class="posa-field">
+                    <label class="posa-field-label">{{ __('تاريخ امر الشراء') }}</label>
+                    <v-text-field
+                      v-model="invoice_doc.po_date"
+                      readonly
+                      variant="outlined"
+                      hide-details="auto"
+                      v-bind="attrs"
+                      v-on="on"
+                      color="primary"
+                    ></v-text-field>
+                  </div>
                 </template>
                 <v-date-picker
                   v-model="invoice_doc.po_date"
@@ -489,16 +510,18 @@
               transition="scale-transition"
             >
               <template v-slot:activator="{ on, attrs }">
-                <label class="posa-field-label">{{ __('تاريخ الإستحقاق') }}</label>                  <v-text-field
-                  v-model="invoice_doc.due_date"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                  v-bind="attrs"
-                  v-on="on"
-                  color="primary"
-                ></v-text-field>
+                <div class="posa-field">
+                  <label class="posa-field-label">{{ __('تاريخ الإستحقاق') }}</label>
+                  <v-text-field
+                    v-model="invoice_doc.due_date"
+                    readonly
+                    variant="outlined"
+                    hide-details="auto"
+                    v-bind="attrs"
+                    v-on="on"
+                    color="primary"
+                  ></v-text-field>
+                </div>
               </template>
               <v-date-picker
                 v-model="invoice_doc.due_date"
@@ -537,53 +560,54 @@
               <div class="pa-2 py-3">{{ row.credit_origin }}</div>
             </v-col>
             <v-col cols="4">
-              <label class="posa-field-label">{{ __('الرصيد المتاح') }}</label>                <v-text-field
-                dense
-                outlined
-                color="primary"
-                background-color="white"
-                hide-details
-                :model-value="formtCurrency(row.total_credit)"
-                disabled
-                :prefix="currencySymbol(invoice_doc.currency)"
-              ></v-text-field>
+              <div class="posa-field">
+                <label class="posa-field-label">{{ __('الرصيد المتاح') }}</label>
+                <v-text-field
+                  variant="outlined"
+                  color="primary"
+                  hide-details="auto"
+                  :model-value="formtCurrency(row.total_credit)"
+                  disabled
+                  :prefix="currencySymbol(invoice_doc.currency)"
+                ></v-text-field>
+              </div>
             </v-col>
             <v-col cols="4">
-              <label class="posa-field-label">{{ __('إستبدال الرصيد') }}</label>                <v-text-field
-                dense
-                outlined
-                color="primary"
-                background-color="white"
-                hide-details
-                type="number"
-                v-model="row.credit_to_redeem"
-                :prefix="currencySymbol(invoice_doc.currency)"
-              ></v-text-field>
+              <div class="posa-field">
+                <label class="posa-field-label">{{ __('إستبدال الرصيد') }}</label>
+                <v-text-field
+                  variant="outlined"
+                  color="primary"
+                  hide-details="auto"
+                  type="number"
+                  v-model="row.credit_to_redeem"
+                  :prefix="currencySymbol(invoice_doc.currency)"
+                ></v-text-field>
+              </div>
             </v-col>
           </v-row>
         </div>
         <v-divider></v-divider>
         <v-row class="pb-0 mb-2" align="start">
           <v-col cols="12">
-            <label class="posa-field-label">{{ __('مسؤول المبيعات') }}</label>
-            <v-autocomplete
-              dense
-              clearable
-              auto-select-first
-              outlined
-              color="primary"
-              v-model="sales_person"
-              :items="sales_persons"
-              item-title="sales_person_name"
-              item-value="name"
-              background-color="white"
-              :no-data-text="__('مسؤول المبيعات غير موجود')"
-              hide-details
-              :filter-keys="['raw.sales_person_name', 'raw.name']"
-              :disabled="readonly"
-            >
-              <template v-slot:item="data">
-                                  <v-list-item-content v-bind="data.props">
+            <div class="posa-field">
+              <label class="posa-field-label">{{ __('مسؤول المبيعات') }}</label>
+              <v-autocomplete
+                variant="outlined"
+                clearable
+                auto-select-first
+                color="primary"
+                v-model="sales_person"
+                :items="sales_persons"
+                item-title="sales_person_name"
+                item-value="name"
+                :no-data-text="__('مسؤول المبيعات غير موجود')"
+                hide-details="auto"
+                :filter-keys="['raw.sales_person_name', 'raw.name']"
+                :disabled="readonly"
+              >
+                <template v-slot:item="data">
+                  <v-list-item-content v-bind="data.props">
                     <v-list-item-title
                       class="primary--text subtitle-1"
                       v-html="data.item.raw.sales_person_name"
@@ -594,7 +618,8 @@
                     ></v-list-item-subtitle>
                   </v-list-item-content>
                 </template>
-            </v-autocomplete>
+              </v-autocomplete>
+            </div>
           </v-col>
         </v-row>
       </div>
@@ -647,15 +672,16 @@
           </v-card-title>
           <v-card-text class="pa-0">
             <v-container>
-              <label class="posa-field-label">{{ __('رقم الموبايل') }}</label>                <v-text-field
-                dense
-                outlined
-                color="primary"
-                background-color="white"
-                hide-details
-                v-model="invoice_doc.contact_mobile"
-                type="number"
-              ></v-text-field>
+              <div class="posa-field">
+                <label class="posa-field-label">{{ __('رقم الموبايل') }}</label>
+                <v-text-field
+                  variant="outlined"
+                  color="primary"
+                  hide-details="auto"
+                  v-model="invoice_doc.contact_mobile"
+                  type="number"
+                ></v-text-field>
+              </div>
             </v-container>
           </v-card-text>
           <v-card-actions>
