@@ -232,26 +232,6 @@
                     </v-btn>
                   </v-col>
                   <v-spacer></v-spacer>
-                  <v-col cols="1">
-                    <v-btn
-                      :disabled="!!item.posa_is_offer || !!item.posa_is_replace"
-                      icon
-                      color="secondary"
-                      @click.stop="subtract_one(item)"
-                    >
-                      <v-icon>mdi-minus-circle-outline</v-icon>
-                    </v-btn>
-                  </v-col>
-                  <v-col cols="1">
-                    <v-btn
-                      :disabled="!!item.posa_is_offer || !!item.posa_is_replace"
-                      icon
-                      color="secondary"
-                      @click.stop="add_one(item)"
-                    >
-                      <v-icon>mdi-plus-circle-outline</v-icon>
-                    </v-btn>
-                  </v-col>
                 </v-row>
                 <v-row class="ma-0 pa-0">
                   <v-col cols="4">
@@ -286,22 +266,24 @@
                     </div>
                   </v-col>
                   <v-col cols="4">
-                    <v-select
-                      variant="outlined"
-                      :label="frappe._('الوحدة')"
-                      v-model="item.uom"
-                      :items="item.item_uoms"
-                      item-title="uom"
-                      item-value="uom"
-                      hide-details
-                      @change="calc_uom(item, $event)"
-                      :disabled="
-                        !!invoice_doc.is_return ||
-                        !!item.posa_is_offer ||
-                        !!item.posa_is_replace
-                      "
-                    >
-                    </v-select>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('الوحدة') }}</label>
+                      <v-select
+                        variant="outlined"
+                        v-model="item.uom"
+                        :items="item.item_uoms"
+                        :item-title="(u) => __(u.uom)"
+                        item-value="uom"
+                        hide-details
+                        @change="calc_uom(item, $event)"
+                        :disabled="
+                          !!invoice_doc.is_return ||
+                          !!item.posa_is_offer ||
+                          !!item.posa_is_replace
+                        "
+                      >
+                      </v-select>
+                    </div>
                   </v-col>
                   <v-col cols="4">
                     <div class="posa-field">
