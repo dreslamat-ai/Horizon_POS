@@ -277,8 +277,8 @@
                       :model-value="formtFloat(item.qty)"
                       @change="
                         [
-                          setFormatedFloat(item, 'qty', null, false, $event),
-                          calc_stock_qty(item, $event),
+                          setFormatedFloat(item, 'qty', null, false, ev($event)),
+                          calc_stock_qty(item, ev($event)),
                         ]
                       "
                       :rules="[isNumber]"
@@ -322,7 +322,7 @@
                             'rate',
                             null,
                             false,
-                            $event
+                            ev($event)
                           ),
                           calc_prices(item, $event),
                         ]
@@ -365,7 +365,7 @@
                             'discount_percentage',
                             null,
                             true,
-                            $event
+                            ev($event)
                           ),
                           calc_prices(item, $event),
                         ]
@@ -401,7 +401,7 @@
                             'discount_amount',
                             null,
                             true,
-                            $event
+                            ev($event)
                           ),
                           ,
                           calc_prices(item, $event),
@@ -1850,8 +1850,31 @@ export default {
       }
     },
 
-    calc_prices(item, value, $event) {
-      if (event.target.id === "rate") {
+    // عطل أصلي ثانٍ من نفس الجذر (٢١ سبتمبر ٢٠٢٦): setFormatedFloat/
+    // setFormatedCurrency/calc_stock_qty تتوقّع القيمة النصية/الرقمية
+    // المكتوبة فعليًا، لكن @change على v-text-field في Vuetify3 يمرّر
+    // كائن Event خام (isTrusted, _vts) — نفس عطل $event المكتشَف في
+    // Payments.vue سابقًا اليوم. استخراج target.value هنا يحلّه لكل
+    // الحقول الأربعة دفعة واحدة (الكمية/السعر/نسبة الخصم/قيمة الخصم)
+    // بدل تكرار الشرط inline أربع مرات.
+    ev($event) {
+      return $event && typeof $event === "object" && "target" in $event
+        ? $event.target.value
+        : $event;
+    },
+    calc_prices(item, $event) {
+      // عطل أصلي مكتشف بالتحقّق المباشر (٢١ سبتمبر ٢٠٢٦): التوقيع
+      // القديم calc_prices(item, value, $event) لا يطابق طريقة
+      // استدعائه من القالب calc_prices(item, $event) — فالوسيط
+      // الثاني الحقيقي كان يستقبل كائن Event خام باسم "value"، والكود
+      // بداخله كان يقرأ متغيّر event العالمي القديم لا $event الممرَّر
+      // فعليًا. النتيجة: خصم الصنف المكتوب يدويًا (نسبة أو قيمة) كان
+      // يظهر في الحقل نفسه لكن السعر لا يتأثّر إطلاقًا — عطل مالي
+      // صامت. الإصلاح: التوقيع يطابق الاستدعاء الفعلي، والقيمة تُقرأ
+      // من item[field] لأن setFormatedCurrency يكتبها هناك قبل هذا
+      // النداء مباشرة (نفس ترتيب الاستدعاء الأصلي في القالب).
+      if ($event.target.id === "rate") {
+        const value = flt(item.rate);
         item.discount_percentage = 0;
         if (value < item.price_list_rate) {
           item.discount_amount = this.flt(
@@ -1864,7 +1887,8 @@ export default {
         } else if (value > item.price_list_rate) {
           item.discount_amount = 0;
         }
-      } else if (event.target.id === "discount_amount") {
+      } else if ($event.target.id === "discount_amount") {
+        const value = flt(item.discount_amount);
         if (value < 0) {
           item.discount_amount = 0;
           item.discount_percentage = 0;
@@ -1872,7 +1896,8 @@ export default {
           item.rate = flt(item.price_list_rate) - flt(value);
           item.discount_percentage = 0;
         }
-      } else if (event.target.id === "discount_percentage") {
+      } else if ($event.target.id === "discount_percentage") {
+        const value = flt(item.discount_percentage);
         if (value < 0) {
           item.discount_amount = 0;
           item.discount_percentage = 0;
