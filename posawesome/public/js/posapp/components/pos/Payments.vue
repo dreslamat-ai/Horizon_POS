@@ -106,14 +106,19 @@
                   : 3
               "
             >
-              <v-btn
-                block
-                class=""
-                color="primary"
-                dark
-                @click="set_full_amount(payment.idx)"
-                >{{ __(payment.mode_of_payment) }}</v-btn
-              >
+              <div class="posa-field">
+                <label class="posa-field-label posa-field-label--spacer" aria-hidden="true"
+                  >&nbsp;</label
+                >
+                <v-btn
+                  block
+                  class=""
+                  color="primary"
+                  dark
+                  @click="set_full_amount(payment.idx)"
+                  >{{ __(payment.mode_of_payment) }}</v-btn
+                >
+              </div>
             </v-col>
             <v-col v-if="is_mpesa_c2b_payment(payment)" :cols="12" class="pl-3">
               <v-btn
