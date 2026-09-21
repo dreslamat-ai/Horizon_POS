@@ -198,6 +198,7 @@ export default {
         this.payment = true ? data === 'true' : false;
         this.offers = false ? data === 'true' : false;
         this.coupons = false ? data === 'true' : false;
+        this.$nextTick(() => { const el = document.querySelector('.layout-main-section'); if (el) el.scrollTop = 0; });
       });
       evntBus.$on('show_offers', (data) => {
         this.offers = true ? data === 'true' : false;
