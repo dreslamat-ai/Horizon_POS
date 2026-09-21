@@ -191,10 +191,10 @@
             <template v-slot:item.qty="{ item }">
               <div class="qty-stepper" v-if="!item.posa_is_offer && !item.posa_is_replace">
                 <button type="button" @click.stop="subtract_one(item)">−</button>
-                <span>{{ formtFloat(item.qty) }}</span>
+                <span>{{ Math.round(flt(item.qty)) }}</span>
                 <button type="button" @click.stop="add_one(item)">+</button>
               </div>
-              <span v-else>{{ formtFloat(item.qty) }}</span>
+              <span v-else>{{ Math.round(flt(item.qty)) }}</span>
               <div class="qty-uom">{{ __(item.uom) }}</div>
             </template>
             <template v-slot:item.rate="{ item }"
@@ -219,7 +219,7 @@
 
             <template v-slot:expanded-row="{ columns, item }">
               <tr>
-              <td :colspan="columns.length" class="ma-0 pa-0">
+              <td :colspan="columns.length" class="ma-0 pa-0 selection">
                 <v-row class="ma-0 pa-0">
                   <v-col cols="1">
                     <v-btn
@@ -255,44 +255,42 @@
                 </v-row>
                 <v-row class="ma-0 pa-0">
                   <v-col cols="4">
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('كود الصنف')"
-                      background-color="white"
-                      hide-details
-                      v-model="item.item_code"
-                      disabled
-                    ></v-text-field>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('كود الصنف') }}</label>
+                      <v-text-field
+                        variant="outlined"
+                        color="primary"
+                        hide-details
+                        v-model="item.item_code"
+                        disabled
+                      ></v-text-field>
+                    </div>
                   </v-col>
                   <v-col cols="4">
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('الكمية')"
-                      background-color="white"
-                      hide-details
-                      :model-value="formtFloat(item.qty)"
-                      @change="
-                        [
-                          setFormatedFloat(item, 'qty', null, false, ev($event)),
-                          calc_stock_qty(item, ev($event)),
-                        ]
-                      "
-                      :rules="[isNumber]"
-                      :disabled="!!item.posa_is_offer || !!item.posa_is_replace"
-                    ></v-text-field>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('الكمية') }}</label>
+                      <v-text-field
+                        variant="outlined"
+                        color="primary"
+                        hide-details
+                        :model-value="Math.round(flt(item.qty))"
+                        @change="
+                          [
+                            setFormatedFloat(item, 'qty', null, false, ev($event)),
+                            calc_stock_qty(item, ev($event)),
+                          ]
+                        "
+                        :rules="[isNumber]"
+                        :disabled="!!item.posa_is_offer || !!item.posa_is_replace"
+                      ></v-text-field>
+                    </div>
                   </v-col>
                   <v-col cols="4">
                     <v-select
-                      dense
-                      background-color="white"
+                      variant="outlined"
                       :label="frappe._('الوحدة')"
                       v-model="item.uom"
                       :items="item.item_uoms"
-                      outlined
                       item-title="uom"
                       item-value="uom"
                       hide-details
@@ -306,180 +304,180 @@
                     </v-select>
                   </v-col>
                   <v-col cols="4">
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('السعر')"
-                      background-color="white"
-                      hide-details
-                      :prefix="currencySymbol(pos_profile.currency)"
-                      :model-value="formtCurrency(item.rate)"
-                      @change="
-                        [
-                          setFormatedCurrency(
-                            item,
-                            'rate',
-                            null,
-                            false,
-                            ev($event)
-                          ),
-                          calc_prices(item, $event),
-                        ]
-                      "
-                      :rules="[isNumber]"
-                      id="rate"
-                      :append-icon="
-                        !!pos_profile.posa_require_manager_approval &&
-                        !rate_unlocked
-                          ? 'mdi-lock'
-                          : ''
-                      "
-                      @click:append="unlock_rate_edit()"
-                      :disabled="
-                        !!item.posa_is_offer ||
-                        !!item.posa_is_replace ||
-                        !!item.posa_offer_applied ||
-                        !pos_profile.posa_allow_user_to_edit_rate ||
-                        !!invoice_doc.is_return ||
-                        (!!pos_profile.posa_require_manager_approval &&
-                          !rate_unlocked)
-                          ? true
-                          : false
-                      "
-                    ></v-text-field>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('السعر') }}</label>
+                      <v-text-field
+                        variant="outlined"
+                        color="primary"
+                        hide-details
+                        :prefix="currencySymbol(pos_profile.currency)"
+                        :model-value="formtCurrency(item.rate)"
+                        @change="
+                          [
+                            setFormatedCurrency(
+                              item,
+                              'rate',
+                              null,
+                              false,
+                              ev($event)
+                            ),
+                            calc_prices(item, $event),
+                          ]
+                        "
+                        :rules="[isNumber]"
+                        id="rate"
+                        :append-icon="
+                          !!pos_profile.posa_require_manager_approval &&
+                          !rate_unlocked
+                            ? 'mdi-lock'
+                            : ''
+                        "
+                        @click:append="unlock_rate_edit()"
+                        :disabled="
+                          !!item.posa_is_offer ||
+                          !!item.posa_is_replace ||
+                          !!item.posa_offer_applied ||
+                          !pos_profile.posa_allow_user_to_edit_rate ||
+                          !!invoice_doc.is_return ||
+                          (!!pos_profile.posa_require_manager_approval &&
+                            !rate_unlocked)
+                            ? true
+                            : false
+                        "
+                      ></v-text-field>
+                    </div>
                   </v-col>
                   <v-col cols="4">
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('نسبة الخصم')"
-                      background-color="white"
-                      hide-details
-                      :model-value="formtFloat(item.discount_percentage)"
-                      @change="
-                        [
-                          setFormatedCurrency(
-                            item,
-                            'discount_percentage',
-                            null,
-                            true,
-                            ev($event)
-                          ),
-                          calc_prices(item, $event),
-                        ]
-                      "
-                      :rules="[isNumber]"
-                      id="discount_percentage"
-                      :disabled="
-                        !!item.posa_is_offer ||
-                        !!item.posa_is_replace ||
-                        item.posa_offer_applied ||
-                        !pos_profile.posa_allow_user_to_edit_item_discount ||
-                        !!invoice_doc.is_return
-                          ? true
-                          : false
-                      "
-                      suffix="%"
-                    ></v-text-field>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('نسبة الخصم') }}</label>
+                      <v-text-field
+                        variant="outlined"
+                        color="primary"
+                        hide-details
+                        :model-value="formtFloat(item.discount_percentage)"
+                        @change="
+                          [
+                            setFormatedCurrency(
+                              item,
+                              'discount_percentage',
+                              null,
+                              true,
+                              ev($event)
+                            ),
+                            calc_prices(item, $event),
+                          ]
+                        "
+                        :rules="[isNumber]"
+                        id="discount_percentage"
+                        :disabled="
+                          !!item.posa_is_offer ||
+                          !!item.posa_is_replace ||
+                          item.posa_offer_applied ||
+                          !pos_profile.posa_allow_user_to_edit_item_discount ||
+                          !!invoice_doc.is_return
+                            ? true
+                            : false
+                        "
+                        suffix="%"
+                      ></v-text-field>
+                    </div>
                   </v-col>
                   <v-col cols="4">
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('قيمة الخصم')"
-                      background-color="white"
-                      hide-details
-                      :model-value="formtCurrency(item.discount_amount)"
-                      :rules="[isNumber]"
-                      @change="
-                        [
-                          setFormatedCurrency(
-                            item,
-                            'discount_amount',
-                            null,
-                            true,
-                            ev($event)
-                          ),
-                          ,
-                          calc_prices(item, $event),
-                        ]
-                      "
-                      :prefix="currencySymbol(pos_profile.currency)"
-                      id="discount_amount"
-                      :disabled="
-                        !!item.posa_is_offer ||
-                        !!item.posa_is_replace ||
-                        !!item.posa_offer_applied ||
-                        !pos_profile.posa_allow_user_to_edit_item_discount ||
-                        !!invoice_doc.is_return
-                          ? true
-                          : false
-                      "
-                    ></v-text-field>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('قيمة الخصم') }}</label>
+                      <v-text-field
+                        variant="outlined"
+                        color="primary"
+                        hide-details
+                        :model-value="formtCurrency(item.discount_amount)"
+                        :rules="[isNumber]"
+                        @change="
+                          [
+                            setFormatedCurrency(
+                              item,
+                              'discount_amount',
+                              null,
+                              true,
+                              ev($event)
+                            ),
+                            ,
+                            calc_prices(item, $event),
+                          ]
+                        "
+                        :prefix="currencySymbol(pos_profile.currency)"
+                        id="discount_amount"
+                        :disabled="
+                          !!item.posa_is_offer ||
+                          !!item.posa_is_replace ||
+                          !!item.posa_offer_applied ||
+                          !pos_profile.posa_allow_user_to_edit_item_discount ||
+                          !!invoice_doc.is_return
+                            ? true
+                            : false
+                        "
+                      ></v-text-field>
+                    </div>
                   </v-col>
                   <v-col cols="4">
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('سعر قائمة السعر')"
-                      background-color="white"
-                      hide-details
-                      :model-value="formtCurrency(item.price_list_rate)"
-                      disabled
-                      :prefix="currencySymbol(pos_profile.currency)"
-                    ></v-text-field>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('سعر قائمة السعر') }}</label>
+                      <v-text-field
+                        variant="outlined"
+                        color="primary"
+                        hide-details
+                        :model-value="formtCurrency(item.price_list_rate)"
+                        disabled
+                        :prefix="currencySymbol(pos_profile.currency)"
+                      ></v-text-field>
+                    </div>
                   </v-col>
                   <v-col cols="4">
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('الكمية المتاحة')"
-                      background-color="white"
-                      hide-details
-                      :model-value="formtFloat(item.actual_qty)"
-                      disabled
-                    ></v-text-field>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('الكمية المتاحة') }}</label>
+                      <v-text-field
+                        variant="outlined"
+                        color="primary"
+                        hide-details
+                        :model-value="formtFloat(item.actual_qty)"
+                        disabled
+                      ></v-text-field>
+                    </div>
                   </v-col>
                   <v-col cols="4">
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('Group')"
-                      background-color="white"
-                      hide-details
-                      v-model="item.item_group"
-                      disabled
-                    ></v-text-field>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('Group') }}</label>
+                      <v-text-field
+                        variant="outlined"
+                        color="primary"
+                        hide-details
+                        v-model="item.item_group"
+                        disabled
+                      ></v-text-field>
+                    </div>
                   </v-col>
                   <v-col cols="4">
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('كمية المخزون')"
-                      background-color="white"
-                      hide-details
-                      :model-value="formtFloat(item.stock_qty)"
-                      disabled
-                    ></v-text-field>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('كمية المخزون') }}</label>
+                      <v-text-field
+                        variant="outlined"
+                        color="primary"
+                        hide-details
+                        :model-value="formtFloat(item.stock_qty)"
+                        disabled
+                      ></v-text-field>
+                    </div>
                   </v-col>
                   <v-col cols="4">
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('وحدة المخزون')"
-                      background-color="white"
-                      hide-details
-                      v-model="item.stock_uom"
-                      disabled
-                    ></v-text-field>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('وحدة المخزون') }}</label>
+                      <v-text-field
+                        variant="outlined"
+                        color="primary"
+                        hide-details
+                        v-model="item.stock_uom"
+                        disabled
+                      ></v-text-field>
+                    </div>
                   </v-col>
                   <v-col align="center" cols="4" v-if="item.posa_offer_applied">
                     <v-checkbox
@@ -495,17 +493,17 @@
                     cols="4"
                     v-if="item.has_serial_no == 1 || item.serial_no"
                   >
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('عدد الرقم التسلسلي')"
-                      background-color="white"
-                      hide-details
-                      v-model="item.serial_no_selected_count"
-                      type="number"
-                      disabled
-                    ></v-text-field>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('عدد الرقم التسلسلي') }}</label>
+                      <v-text-field
+                        variant="outlined"
+                        color="primary"
+                        hide-details
+                        v-model="item.serial_no_selected_count"
+                        type="number"
+                        disabled
+                      ></v-text-field>
+                    </div>
                   </v-col>
                   <v-col
                     cols="12"
@@ -529,31 +527,31 @@
                     cols="4"
                     v-if="item.has_batch_no == 1 || item.batch_no"
                   >
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('عدد الباتش المتاح')"
-                      background-color="white"
-                      hide-details
-                      :model-value="formtFloat(item.actual_batch_qty)"
-                      disabled
-                    ></v-text-field>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('عدد الباتش المتاح') }}</label>
+                      <v-text-field
+                        variant="outlined"
+                        color="primary"
+                        hide-details
+                        :model-value="formtFloat(item.actual_batch_qty)"
+                        disabled
+                      ></v-text-field>
+                    </div>
                   </v-col>
                   <v-col
                     cols="4"
                     v-if="item.has_batch_no == 1 || item.batch_no"
                   >
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('تاريخ صلاحية الباتش')"
-                      background-color="white"
-                      hide-details
-                      v-model="item.batch_no_expiry_date"
-                      disabled
-                    ></v-text-field>
+                    <div class="posa-field">
+                      <label class="posa-field-label">{{ __('تاريخ صلاحية الباتش') }}</label>
+                      <v-text-field
+                        variant="outlined"
+                        color="primary"
+                        hide-details
+                        v-model="item.batch_no_expiry_date"
+                        disabled
+                      ></v-text-field>
+                    </div>
                   </v-col>
                   <v-col
                     cols="8"
@@ -856,8 +854,8 @@
         ></v-text-field>
         <p class="pin-error" v-if="manager_pin_error">{{ manager_pin_error }}</p>
         <v-card-actions class="justify-center">
-          <v-btn text @click="manager_pin_dialog = false; pending_manager_action = null">{{ __("إلغاء") }}</v-btn>
-          <v-btn color="primary" @click="confirm_manager_pin">{{ __("تأكيد") }}</v-btn>
+          <v-btn color="error" variant="flat" @click="manager_pin_dialog = false; pending_manager_action = null">{{ __("إلغاء") }}</v-btn>
+          <v-btn color="success" variant="flat" @click="confirm_manager_pin">{{ __("تأكيد") }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
