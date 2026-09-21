@@ -685,6 +685,14 @@
 #page-posapp .qty-stepper button:hover {
     background: var(--h-gold-light);
 }
+/* الوحدة اتدمجت مع الكمية بدل عمود مستقل — الجدول كان أعرض من شاشة
+   الموبايل بكتير (بلاغ مالك ٢١ سبتمبر ٢٠٢٦). */
+#page-posapp .qty-uom {
+    font-size: 10px;
+    color: var(--h-ink-soft);
+    text-align: center;
+    margin-top: 2px;
+}
 #page-posapp .qty-stepper span {
     width: 26px;
     text-align: center;

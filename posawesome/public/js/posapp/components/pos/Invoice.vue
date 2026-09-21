@@ -195,6 +195,7 @@
                 <button type="button" @click.stop="add_one(item)">+</button>
               </div>
               <span v-else>{{ formtFloat(item.qty) }}</span>
+              <div class="qty-uom">{{ item.uom }}</div>
             </template>
             <template v-slot:item.rate="{ item }"
               >{{ currencySymbol(pos_profile.currency) }}
@@ -941,7 +942,6 @@ export default {
           value: "item_name",
         },
         { title: __("الكمية"), value: "qty", align: "center" },
-        { title: __("الوحدة"), value: "uom", align: "center" },
         { title: __("السعر"), value: "rate", align: "center" },
         { title: __("القيمة"), value: "amount", align: "center" },
         { title: __("هل هذا عرض ؟"), value: "posa_is_offer", align: "center" },
