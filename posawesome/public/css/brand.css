@@ -713,3 +713,17 @@
     white-space: nowrap;
     font-family: inherit;
 }
+
+/* بلاغ حقيقي (٢١ سبتمبر ٢٠٢٦، لقطة شاشة): label الحقل outlined
+   العائم كان بيتراكب مع الحقل اللي فوقه في شاشة الدفع — صفوف طرق
+   الدفع/الإجماليات كل واحد v-row بـpy-0 (بلا فاصل عمودي)، والليبل
+   العربي محتاج مساحة فوق الحقل نفسها لما تكون فيه قيمة (floating). */
+#page-posapp .selection .v-row + .v-row {
+    margin-top: 18px;
+}
+
+/* بلاغ مالك (٢١ سبتمبر ٢٠٢٦): أزرار شاشة الدفع (٣٦px) أقصر من حقول
+   النص المجاورة (٥٦px) — قِيس فعليًا بـgetBoundingClientRect. */
+#page-posapp .selection .v-btn--block {
+    height: 56px !important;
+}

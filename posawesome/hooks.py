@@ -29,7 +29,7 @@ app_include_css = [
     "/assets/posawesome/css/font.css",
     # هيدر كحلي + خلفية كريمية، مقصورة بالكامل على #page-posapp — راجع
     # brand.css نفسه للتفصيل وسبب كل قاعدة.
-    "/assets/posawesome/css/brand.css",
+    "/assets/posawesome/css/brand.css?v=20260921a",
 ]
 app_include_js = [
     # مكتبة QZ Tray UMD — تسجّل `window.qz` اللي Payments.vue بيفحص
