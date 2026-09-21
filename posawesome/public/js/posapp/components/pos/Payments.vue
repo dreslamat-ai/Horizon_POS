@@ -87,9 +87,7 @@
                   color="primary"
                   hide-details="auto"
                   :model-value="formtCurrency(payment.amount)"
-                  @change="
-                    setFormatedCurrency(payment, 'amount', null, true, $event)
-                  "
+                  @change="on_payment_amount_change(payment, $event)"
                   :rules="[isNumber]"
                   :prefix="currencySymbol(invoice_doc.currency)"
                   @focus="set_rest_amount(payment.idx)"
@@ -925,6 +923,44 @@ export default {
           payment.amount = this.diff_payment;
         }
       });
+    },
+    // بلاغ مالك (٢١ سبتمبر ٢٠٢٦): الدفع الجزئي نقدي+بطاقة يدويّ بالكامل —
+    // لازم يكتب المبلغين بنفسه بدل ما الباقي يتحسب له تلقائيًا. مُفعَّل
+    // فقط حين تُوجد طريقتا دفع بالضبط (نقدي وبطاقة عند سترة، مؤكَّد من
+    // POS Profile) — تجنّبًا لكسر تدفّقات Mpesa أو أكثر من طريقتين لم
+    // تُطلَب هنا ولم تُقَس.
+    on_payment_amount_change(payment, $event) {
+      // عطل مكتشف بالتشخيص المباشر (٢١ سبتمبر ٢٠٢٦): @change على
+      // v-text-field في Vuetify3 يمرّر كائن Event الخام (isTrusted,
+      // _vts) لا القيمة النصية المكتوبة — setFormatedCurrency كانت
+      // تستقبله كما هو وتحوّله لـ0 صامتًا (parseFloat على كائن =
+      // NaN)، فالمبلغ المكتوب يرجع صفر بعد الخروج من الحقل في كل
+      // حقول الدفع، لا في هذا الحقل وحده. هذا عطلٌ أصليّ سابقٌ لهذا
+      // التعديل، لا نتيجةً له — استخراج target.value يصلحه.
+      const raw =
+        $event && typeof $event === "object" && "target" in $event
+          ? $event.target.value
+          : $event;
+      this.setFormatedCurrency(payment, "amount", null, true, raw);
+      this.auto_fill_remaining_payment(payment);
+    },
+    auto_fill_remaining_payment(changed_payment) {
+      if (this.invoice_doc.is_return) return;
+      const relevant = this.invoice_doc.payments.filter(
+        (p) => !this.is_mpesa_c2b_payment(p)
+      );
+      if (relevant.length !== 2) return;
+      const other = relevant.find((p) => p.idx !== changed_payment.idx);
+      if (!other) return;
+      const total = this.flt(
+        this.invoice_doc.rounded_total || this.invoice_doc.grand_total,
+        this.currency_precision
+      );
+      const remaining = this.flt(
+        total - this.flt(changed_payment.amount),
+        this.currency_precision
+      );
+      other.amount = remaining > 0 ? remaining : 0;
     },
     clear_all_amounts() {
       this.invoice_doc.payments.forEach((payment) => {
