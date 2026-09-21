@@ -274,7 +274,7 @@
                       :label="frappe._('الكمية')"
                       background-color="white"
                       hide-details
-                      :value="formtFloat(item.qty)"
+                      :model-value="formtFloat(item.qty)"
                       @change="
                         [
                           setFormatedFloat(item, 'qty', null, false, $event),
@@ -314,7 +314,7 @@
                       background-color="white"
                       hide-details
                       :prefix="currencySymbol(pos_profile.currency)"
-                      :value="formtCurrency(item.rate)"
+                      :model-value="formtCurrency(item.rate)"
                       @change="
                         [
                           setFormatedCurrency(
@@ -357,7 +357,7 @@
                       :label="frappe._('نسبة الخصم')"
                       background-color="white"
                       hide-details
-                      :value="formtFloat(item.discount_percentage)"
+                      :model-value="formtFloat(item.discount_percentage)"
                       @change="
                         [
                           setFormatedCurrency(
@@ -392,7 +392,7 @@
                       :label="frappe._('قيمة الخصم')"
                       background-color="white"
                       hide-details
-                      :value="formtCurrency(item.discount_amount)"
+                      :model-value="formtCurrency(item.discount_amount)"
                       :rules="[isNumber]"
                       @change="
                         [
@@ -428,7 +428,7 @@
                       :label="frappe._('سعر قائمة السعر')"
                       background-color="white"
                       hide-details
-                      :value="formtCurrency(item.price_list_rate)"
+                      :model-value="formtCurrency(item.price_list_rate)"
                       disabled
                       :prefix="currencySymbol(pos_profile.currency)"
                     ></v-text-field>
@@ -441,7 +441,7 @@
                       :label="frappe._('الكمية المتاحة')"
                       background-color="white"
                       hide-details
-                      :value="formtFloat(item.actual_qty)"
+                      :model-value="formtFloat(item.actual_qty)"
                       disabled
                     ></v-text-field>
                   </v-col>
@@ -465,7 +465,7 @@
                       :label="frappe._('كمية المخزون')"
                       background-color="white"
                       hide-details
-                      :value="formtFloat(item.stock_qty)"
+                      :model-value="formtFloat(item.stock_qty)"
                       disabled
                     ></v-text-field>
                   </v-col>
@@ -536,7 +536,7 @@
                       :label="frappe._('عدد الباتش المتاح')"
                       background-color="white"
                       hide-details
-                      :value="formtFloat(item.actual_batch_qty)"
+                      :model-value="formtFloat(item.actual_batch_qty)"
                       disabled
                     ></v-text-field>
                   </v-col>
