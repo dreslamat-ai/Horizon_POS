@@ -7,7 +7,7 @@
       ></v-app-bar-nav-icon>
       <v-img
         src="/assets/posawesome/images/horizon-logo1.png"
-        alt="Horizon POS"
+        alt="نقطة بيع Horizon"
         max-width="32"
         class="mr-2 brand-logo"
       ></v-img>
@@ -150,7 +150,7 @@ export default {
       drawer: false,
       mini: true,
       item: 0,
-      items: [{ text: 'POS', icon: 'mdi-network-pos' }],
+      items: [{ text: __('نقطة البيع'), icon: 'mdi-network-pos' }],
       page: '',
       fav: true,
       menu: false,
@@ -262,7 +262,7 @@ export default {
       });
       evntBus.$on('register_pos_profile', (data) => {
         this.pos_profile = data.pos_profile;
-        const payments = { text: 'Payments', icon: 'mdi-cash-register' };
+        const payments = { text: __('المدفوعات'), icon: 'mdi-cash-register' };
         if (
           this.pos_profile.posa_use_pos_awesome_payments &&
           this.items.length !== 2

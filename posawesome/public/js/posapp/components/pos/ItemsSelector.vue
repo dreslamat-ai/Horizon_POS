@@ -14,7 +14,7 @@
             v-model.number="qty" type="number" @keydown.enter="enter_event" @keydown.esc="esc_event"></v-text-field>
         </v-col>
         <v-col cols="2" class="pb-0 mb-2" v-if="pos_profile.posa_new_line">
-          <v-checkbox v-model="new_line" color="accent" value="true" label="NLine" dense hide-details></v-checkbox>
+          <v-checkbox v-model="new_line" color="accent" value="true" :label="__('سطر جديد')" dense hide-details></v-checkbox>
         </v-col>
         <v-col cols="12" class="pt-0 mt-0 flex-grow-1" style="min-height: 0; overflow: hidden;">
           <div class="chips-row" v-if="items_view == 'card'">
@@ -38,7 +38,7 @@
                       style="width:56px;height:56px;opacity:.92;">
                       <path d="M8 4l4-1 4 1 3 3-2 3-2-1v11H9V9L7 10 5 7l3-3Z" />
                     </svg>
-                    <div class="item-badge" v-if="item.stock_uom">{{ item.stock_uom }}</div>
+                    <div class="item-badge" v-if="item.stock_uom">{{ __(item.stock_uom) }}</div>
                   </div>
                   <div class="item-info">
                     <div class="item-name">{{ item.item_name }}</div>

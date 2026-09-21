@@ -195,7 +195,7 @@
                 <button type="button" @click.stop="add_one(item)">+</button>
               </div>
               <span v-else>{{ formtFloat(item.qty) }}</span>
-              <div class="qty-uom">{{ item.uom }}</div>
+              <div class="qty-uom">{{ __(item.uom) }}</div>
             </template>
             <template v-slot:item.rate="{ item }"
               >{{ currencySymbol(pos_profile.currency) }}

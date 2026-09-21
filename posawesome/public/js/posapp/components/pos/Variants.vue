@@ -3,7 +3,7 @@
     <v-dialog v-model="varaintsDialog" max-width="600px">
       <v-card min-height="500px">
         <v-card-title>
-          <span class="headline primary--text">Select Item</span>
+          <span class="headline primary--text">{{ __('اختيار الصنف') }}</span>
           <v-spacer></v-spacer>
           <v-btn color="grey-darken-1" variant="flat" dark @click="close_dialog">{{ __('إغلاق') }}</v-btn>
         </v-card-title>

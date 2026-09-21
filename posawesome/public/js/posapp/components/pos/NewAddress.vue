@@ -42,7 +42,7 @@
               </v-col>
               <v-col cols="6">
                 <v-text-field
-                  label="City"
+                  :label="__('المدينة')"
                   dense
                   color="primary"
                   background-color="white"
@@ -52,7 +52,7 @@
               </v-col>
               <v-col cols="6">
                 <v-text-field
-                  label="State"
+                  :label="__('المحافظة')"
                   dense
                   background-color="white"
                   hide-details
