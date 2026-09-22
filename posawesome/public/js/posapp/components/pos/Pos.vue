@@ -53,7 +53,7 @@
         <Payments></Payments>
       </v-col>
 
-      <v-col xl="7" lg="7" md="7" sm="7" cols="12" class="pos">
+      <v-col xl="7" lg="7" md="7" sm="7" cols="12" class="pos pr-0">
         <Invoice></Invoice>
       </v-col>
     </v-row>
