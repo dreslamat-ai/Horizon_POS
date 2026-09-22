@@ -22,7 +22,7 @@
                   dense
                   color="primary"
                   :label="frappe._('إسم العميل') + ' *'"
-                  background-color="white"
+                  bg-color="white"
                   hide-details
                   v-model="customer_name"
                 ></v-text-field>
@@ -32,7 +32,7 @@
                   dense
                   color="primary"
                   :label="frappe._('رقم الموبايل')"
-                  background-color="white"
+                  bg-color="white"
                   hide-details
                   v-model="mobile_no"
                 ></v-text-field>
@@ -42,7 +42,7 @@
                   dense
                   color="primary"
                   :label="frappe._('الإيميل')"
-                  background-color="white"
+                  bg-color="white"
                   hide-details
                   v-model="email_id"
                 ></v-text-field>

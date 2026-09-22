@@ -15,7 +15,7 @@
                   dense
                   color="primary"
                   :label="frappe._('إسم العنوان')"
-                  background-color="white"
+                  bg-color="white"
                   hide-details
                   v-model="address.name"
                 ></v-text-field>
@@ -25,7 +25,7 @@
                   dense
                   color="primary"
                   :label="frappe._('العنوان سطر 1')"
-                  background-color="white"
+                  bg-color="white"
                   hide-details
                   v-model="address.address_line1"
                 ></v-text-field>
@@ -35,7 +35,7 @@
                   dense
                   color="primary"
                   :label="frappe._('العنوان سطر 2')"
-                  background-color="white"
+                  bg-color="white"
                   hide-details
                   v-model="address.address_line2"
                 ></v-text-field>
@@ -45,7 +45,7 @@
                   :label="__('المدينة')"
                   dense
                   color="primary"
-                  background-color="white"
+                  bg-color="white"
                   hide-details
                   v-model="address.city"
                 ></v-text-field>
@@ -54,7 +54,7 @@
                 <v-text-field
                   :label="__('المحافظة')"
                   dense
-                  background-color="white"
+                  bg-color="white"
                   hide-details
                   v-model="address.state"
                 ></v-text-field>

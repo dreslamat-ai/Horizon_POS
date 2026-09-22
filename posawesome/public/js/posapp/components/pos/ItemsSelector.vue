@@ -4,13 +4,13 @@
       <v-progress-linear :active="loading" :indeterminate="loading" absolute top color="info"></v-progress-linear>
       <v-row class="items px-2 py-1">
         <v-col class="pb-0 mb-2">
-          <v-text-field dense clearable autofocus outlined color="primary" :label="frappe._('البحث عن المنتجات')"
-            hint="البحث بكود الصنف, الرقم التسلسلي, رقم الباتش او الباركود" background-color="white" hide-details
+          <v-text-field dense clearable autofocus variant="outlined" color="primary" :label="frappe._('البحث عن المنتجات')"
+            hint="البحث بكود الصنف, الرقم التسلسلي, رقم الباتش او الباركود" bg-color="white" hide-details
             v-model="debounce_search" @keydown.esc="esc_event" @keydown.enter="enter_event"
             ref="debounce_search"></v-text-field>
         </v-col>
         <v-col cols="3" class="pb-0 mb-2" v-if="pos_profile.posa_input_qty">
-          <v-text-field dense outlined color="primary" :label="frappe._('الكمية')" background-color="white" hide-details
+          <v-text-field dense variant="outlined" color="primary" :label="frappe._('الكمية')" bg-color="white" hide-details
             v-model.number="qty" type="number" @keydown.enter="enter_event" @keydown.esc="esc_event"></v-text-field>
         </v-col>
         <v-col cols="2" class="pb-0 mb-2" v-if="pos_profile.posa_new_line">
