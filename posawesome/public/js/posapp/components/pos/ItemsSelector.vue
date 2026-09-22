@@ -219,6 +219,11 @@ export default {
         console.log("لا يوجد ملف شخصي لنقطة المبيعات");
         return;
       }
+      // items_group تبدأ بقيمة ["ALL"] كحشو مؤقّت قبل تحميل المجموعات
+      // الحقيقية — بلا تصفيرها هنا، القيمة دي تفضل موجودة للأبد وتظهر
+      // كرقاقة فلتر ثانية بجانب زرّ "الكل" المترجَم (بلاغ لقطة حقيقي:
+      // ظهور "ALL" و"الكل" جنب بعض، وهما نفس الوظيفة بلغتين).
+      this.items_group = [];
       if (this.pos_profile.item_groups.length > 0) {
         this.pos_profile.item_groups.forEach((element) => {
           if (element.item_group !== "All Item Groups") {
