@@ -12,7 +12,7 @@
             <v-text-field
               color="primary"
               :label="frappe._('رقم الفاتورة')"
-              background-color="white"
+              bg-color="white"
               hide-details
               v-model="invoice_name"
               dense

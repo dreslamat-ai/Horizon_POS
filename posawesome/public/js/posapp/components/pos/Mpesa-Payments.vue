@@ -10,7 +10,7 @@
             <v-text-field
               color="primary"
               :label="frappe._('الإسم الكامل')"
-              background-color="white"
+              bg-color="white"
               hide-details
               v-model="full_name"
               dense
@@ -20,7 +20,7 @@
             <v-text-field
               color="primary"
               :label="frappe._('رقم الموبايل :')"
-              background-color="white"
+              bg-color="white"
               hide-details
               v-model="mobile_no"
               dense
@@ -175,7 +175,7 @@ export default {
       this.selected = [];
     });
   },
-  beforeDestroy() {
+  beforeUnmount() {
     evntBus.$off('open_mpesa_payments');
   },
 };

@@ -1610,7 +1610,7 @@ export default {
   created() {
     document.addEventListener("keydown", this.shortPay.bind(this));
   },
-  beforeDestroy() {
+  beforeUnmount() {
     evntBus.$off("send_invoice_doc_payment");
     evntBus.$off("register_pos_profile");
     evntBus.$off("add_the_new_address");
@@ -1622,7 +1622,7 @@ export default {
     evntBus.$off("set_mpesa_payment");
   },
 
-  destroyed() {
+  unmounted() {
     document.removeEventListener("keydown", this.shortPay);
   },
 

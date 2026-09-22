@@ -218,7 +218,7 @@ export default {
       });
     });
   },
-  beforeDestroy() {
+  beforeUnmount() {
     evntBus.$off('close_opening_dialog');
     evntBus.$off('register_pos_data');
     evntBus.$off('LoadPosProfile');

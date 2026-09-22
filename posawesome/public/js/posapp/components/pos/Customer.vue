@@ -15,14 +15,14 @@
       dense
       clearable
       auto-select-first
-      outlined
+      variant="outlined"
       color="primary"
       :label="frappe._('العميل')"
       v-model="customer"
       :items="customers"
       item-title="customer_name"
       item-value="name"
-      background-color="white"
+      bg-color="white"
       :no-data-text="__('العميل غير موجود')"
       hide-details
       :filter-keys="['raw.customer_name', 'raw.tax_id', 'raw.email_id', 'raw.mobile_no', 'raw.name']"

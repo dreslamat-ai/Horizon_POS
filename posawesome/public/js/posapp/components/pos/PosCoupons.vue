@@ -12,10 +12,10 @@
           <v-col cols="4">
             <v-text-field
               dense
-              outlined
+              variant="outlined"
               color="primary"
               :label="frappe._('كوبون')"
-              background-color="white"
+              bg-color="white"
               hide-details
               v-model="new_coupon"
               class="mr-4"

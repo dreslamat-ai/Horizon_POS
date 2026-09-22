@@ -41,9 +41,9 @@
           <v-select
             dense
             hide-details
-            outlined
+            variant="outlined"
             color="primary"
-            background-color="white"
+            bg-color="white"
             :items="invoiceTypes"
             :label="frappe._('Type')"
             v-model="invoiceType"
@@ -62,14 +62,14 @@
             dense
             clearable
             auto-select-first
-            outlined
+            variant="outlined"
             color="primary"
             :label="frappe._('مصاريف التوصيل')"
             v-model="selcted_delivery_charges"
             :items="delivery_charges"
             item-title="name"
             return-object
-            background-color="white"
+            bg-color="white"
             :no-data-text="__('المصاريف غير موجودة')"
             hide-details
             :filter-keys="['raw.name']"
@@ -92,12 +92,12 @@
         <v-col cols="4" class="pb-0 mb-0 pt-0">
           <v-text-field
             dense
-            outlined
+            variant="outlined"
             color="primary"
             :label="frappe._('قيمة مصاريف التوصيل')"
-            background-color="white"
+            bg-color="white"
             hide-details
-            :value="formtCurrency(delivery_charges_rate)"
+            :model-value="formtCurrency(delivery_charges_rate)"
             :prefix="currencySymbol(pos_profile.currency)"
             disabled
           ></v-text-field>
@@ -125,9 +125,9 @@
                 v-model="posting_date"
                 :label="frappe._('التاريخ')"
                 readonly
-                outlined
+                variant="outlined"
                 dense
-                background-color="white"
+                bg-color="white"
                 clearable
                 color="primary"
                 hide-details
@@ -495,7 +495,7 @@
                       v-model="item.serial_no_selected"
                       :items="item.serial_no_data"
                       item-title="serial_no"
-                      outlined
+                      variant="outlined"
                       dense
                       chips
                       color="primary"
@@ -543,7 +543,7 @@
                       v-model="item.batch_no"
                       :items="item.batch_no_data"
                       item-title="batch_no"
-                      outlined
+                      variant="outlined"
                       dense
                       color="primary"
                       :label="frappe._('رقم الباتش')"
@@ -583,7 +583,7 @@
                           v-model="item.posa_delivery_date"
                           :label="frappe._('تاريخ التوصيل')"
                           readonly
-                          outlined
+                          variant="outlined"
                           dense
                           clearable
                           color="primary"
@@ -630,7 +630,7 @@
                   >
                     <v-textarea
                       class="pa-0"
-                      outlined
+                      variant="outlined"
                       dense
                       clearable
                       color="primary"
@@ -638,7 +638,6 @@
                       rows="1"
                       :label="frappe._('ملاحظات اضافية')"
                       v-model="item.posa_notes"
-                      :value="item.posa_notes"
                     ></v-textarea>
                   </v-col>
                 </v-row>
@@ -829,7 +828,7 @@
           v-model="manager_pin_input"
           type="password"
           dense
-          outlined
+          variant="outlined"
           hide-details
           autofocus
           @keydown.enter="confirm_manager_pin"
@@ -2991,7 +2990,7 @@ export default {
       this.new_line = data;
     });
   },
-  beforeDestroy() {
+  beforeUnmount() {
     evntBus.$off("register_pos_profile");
     evntBus.$off("add_item");
     evntBus.$off("update_customer");
@@ -3018,7 +3017,7 @@ export default {
     document.addEventListener("keydown", this._shortSelectDiscount);
     document.addEventListener("keydown", this._posaGlobalShortcuts);
   },
-  destroyed() {
+  unmounted() {
     document.removeEventListener("keydown", this._shortOpenPayment);
     document.removeEventListener("keydown", this._shortDeleteFirstItem);
     document.removeEventListener("keydown", this._shortOpenFirstItem);

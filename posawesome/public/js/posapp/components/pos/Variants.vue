@@ -19,7 +19,7 @@
                   v-for="value in attr.values"
                   :key="value.abbr"
                   :value="value.attribute_value"
-                  outlined
+                  variant="outlined"
                   label
                   @click="updateFiltredItems"
                 >

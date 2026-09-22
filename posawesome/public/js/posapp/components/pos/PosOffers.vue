@@ -48,7 +48,7 @@
                       v-model="item.give_item"
                       :items="get_give_items(item)"
                       item-title="item_code"
-                      outlined
+                      variant="outlined"
                       dense
                       color="primary"
                       :label="frappe._('إعطاء منتج')"
