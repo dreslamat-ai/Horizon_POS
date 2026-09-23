@@ -10,6 +10,6 @@ def get_data():
 			"color": "grey",
 			"icon": "octicon octicon-file-directory",
 			"type": "module",
-			"label": _("ALMOASER POS")
+			"label": _("Horizon POS")
 		}
 	]
